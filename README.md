@@ -14,20 +14,22 @@ SystemVerilog 定点数库。
 
 | 运算名     |   单周期(组合逻辑实现)      |  流水线                 |    备注                |
 | :-----:    | :-----------:               |  :------------:         |  :------------:        |
-| 位宽变换   | comb_FixedPointZoom.sv      | 不必要                  | 具有溢出控制和四舍五入控制 |
+| 位宽变换   | comb_FixedPointZoom.sv      | 不必要                  | 有溢出、舍入控制       |
 | 加减       | comb_FixedPointAddSub.sv    | 不必要                  | 具有1bit信号控制加或减 |
 | 加         | comb_FixedPointAdd.sv       | 不必要                  |                        |
-| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   |  2段流水线             |
-| 除法       | comb_FixedPointDiv.sv       | pipe_FixedPointDiv.sv   | 为了时序收敛，不推荐使用单周期版。流水线段数见注释 |
+| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   |                        |
+| 除法       | comb_FixedPointDiv.sv       | pipe_FixedPointDiv.sv   | 单周期版时序不保证。   |
 | 开方(Sqrt) | comb_FixedPointSqrt.sv      | 待实现                  |                        |
 | 正弦(Sin)  | comb_FixedPointSin.sv       | 待实现                  |                        |
 | ......     | 待实现                      | 待实现                  |  ......                |
 | 浮点转定点 | comb_Float32toFixedPoint.sv | 待实现                  |  为单精度浮点          |
 | 定点转浮点 | 待实现                      | 待实现                  |  为单精度浮点          |
 
+> 注：以上所有流水线模块的流水线段数详见注释。
+
 # 仿真
-* [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/RTL/) 中所有以 **test_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
+* [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中所有以 **test_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
 
 ### iverilog 仿真
 * 需要： 安装好 **[iverilog](http://iverilog.icarus.com/)** 并配置好其命令行环境
-* 在 Windows 中，运行 [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/RTL/) 中的 **.bat** 文件，可以看到命令行信息的仿真结果。
+* 在 Windows 中，运行 [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中的 **.bat** 文件，可以看到命令行信息的仿真结果。
