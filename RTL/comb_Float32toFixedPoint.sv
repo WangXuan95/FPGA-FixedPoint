@@ -4,7 +4,7 @@ module comb_Float32toFixedPoint #(
     parameter bit ROOF = 1,
     parameter bit ROUND= 1
 )(
-    input  logic [31:0] float,
+    input  logic [31:0] in,
     output logic [WOI+WOF-1:0] out,
     output logic upflow, downflow
 );
@@ -16,12 +16,12 @@ logic [23:0] val;
 
 always @ (*) begin
     {round, overflow, upflow, downflow} = '0;
-    {sign, exp, val[22:0]} = float;
+    {sign, exp, val[22:0]} = in;
     val[23] = 1'b1;
     out = '0;
     if( &exp )
         overflow = 1'b1;
-    else if( float[30:0]!=0 ) begin
+    else if( in[30:0]!=0 ) begin
         expi = exp-127+WOF;
         for(int ii=23; ii>=0; ii--) begin
             if(val[ii]) begin

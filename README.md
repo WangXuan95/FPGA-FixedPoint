@@ -17,13 +17,13 @@ SystemVerilog 定点数库。
 | 位宽变换   | comb_FixedPointZoom.sv      | 不必要                  | 有溢出、舍入控制       |
 | 加减       | comb_FixedPointAddSub.sv    | 不必要                  | 具有1bit信号控制加或减 |
 | 加         | comb_FixedPointAdd.sv       | 不必要                  |                        |
-| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   |                        |
-| 除法       | comb_FixedPointDiv.sv       | pipe_FixedPointDiv.sv   | 单周期版时序不保证。   |
-| 开方(Sqrt) | comb_FixedPointSqrt.sv      | 待实现                  |                        |
-| 正弦(Sin)  | comb_FixedPointSin.sv       | 待实现                  |                        |
+| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   | 单周期版时序不易收敛   |
+| 除法       | comb_FixedPointDiv.sv       | pipe_FixedPointDiv.sv   | 单周期版时序不易收敛   |
+| 开方(Sqrt) | comb_FixedPointSqrt.sv      | pipe_FixedPointSqrt.sv  | 单周期版时序不易收敛   |
+| 正弦(Sin)  | comb_FixedPointSin.sv       | 待实现                  | 单周期版时序不易收敛   |
 | ......     | 待实现                      | 待实现                  |  ......                |
 | 浮点转定点 | comb_Float32toFixedPoint.sv | 待实现                  |  为单精度浮点          |
-| 定点转浮点 | 待实现                      | 待实现                  |  为单精度浮点          |
+| 定点转浮点 | comb_FixedPointToFloat32.sv | 待实现                  |  为单精度浮点          |
 
 > 注：以上所有流水线模块的流水线段数详见注释。
 

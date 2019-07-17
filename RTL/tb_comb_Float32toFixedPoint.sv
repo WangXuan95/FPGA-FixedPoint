@@ -3,25 +3,25 @@ module test_comb_Float32toFixedPoint();
 localparam WOI  = 10;
 localparam WOF  = 10;
 
-logic [31:0] infloat;
-logic [WOI+WOF-1:0] of2f;
+logic [31:0] in_float;
+logic [WOI+WOF-1:0] out_fixed;
 logic upflow, downflow;
 
 comb_Float32toFixedPoint #(
-    .WOI      ( WOI      ),
-    .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
-    .ROUND    ( 1        )
+    .WOI      ( WOI       ),
+    .WOF      ( WOF       ),
+    .ROOF     ( 1         ),
+    .ROUND    ( 1         )
 ) float2fixed (
-    .float    ( infloat  ),
-    .out      ( of2f     ),
-    .upflow   ( upflow   ),
-    .downflow ( downflow )
+    .in       ( in_float  ),
+    .out      ( out_fixed ),
+    .upflow   ( upflow    ),
+    .downflow ( downflow  )
 );
 
-task automatic test_float2fixed(input [31:0] _infloat);
-    infloat = _infloat;
-#2  $display("    float=0x%08x   fixed=%16f",infloat,( $signed(of2f)*1.0)/(1<<WOF));
+task automatic test_float2fixed(input [31:0] _in_float);
+    in_float = _in_float;
+#2  $display("    float=0x%08x   fixed=%16f",in_float,( $signed(out_fixed)*1.0)/(1<<WOF));
 endtask
 
 initial begin
