@@ -1,4 +1,3 @@
-![build](https://img.shields.io/badge/build-almost done-green.svg)
 ![test](https://img.shields.io/badge/test-passing-green.svg)
 ![platform](https://img.shields.io/badge/platform-Quartus|Vivado|iverilog-blue.svg)
 
@@ -59,16 +58,16 @@ module comb_FixedPointMul # (  // 以加法器为例
 # 文件功能说明
 | 运算名     |   单周期(组合逻辑实现)            |  流水线                       |    备注                |
 | :-----:    | :-----------:                     |  :------------:               |  :------------:        |
-| 位宽变换   | ** comb_FixedPointZoom.sv **      | 不必要                        | 有溢出、舍入控制       |
-| 加减       | ** comb_FixedPointAddSub.sv **    | 不必要                        | 具有1bit信号控制加或减 |
-| 加         | ** comb_FixedPointAdd.sv **       | 不必要                        | 位宽相同时可直接使用Verilog的加号替代 |
-| 乘法       | ** comb_FixedPointMul.sv **       | ** pipe_FixedPointMul.sv **   |                        |
-| 除法       | ** comb_FixedPointDiv.sv **       | ** pipe_FixedPointDiv.sv **   | 单周期版时序不易收敛   |
-| 开方(Sqrt) | ** comb_FixedPointSqrt.sv **      | ** pipe_FixedPointSqrt.sv **  | 单周期版时序不易收敛   |
-| 正弦(Sin)  | ** comb_FixedPointSin.sv **       | 待实现                        | 单周期版时序不易收敛   |
+| 位宽变换   | **comb_FixedPointZoom.sv**      | 不必要                        | 有溢出、舍入控制       |
+| 加减       | **comb_FixedPointAddSub.sv**    | 不必要                        | 具有1bit信号控制加或减 |
+| 加         | **comb_FixedPointAdd.sv**       | 不必要                        | 位宽相同时可直接使用Verilog的加号替代 |
+| 乘法       | **comb_FixedPointMul.sv**       | **pipe_FixedPointMul.sv**   |                        |
+| 除法       | **comb_FixedPointDiv.sv**       | **pipe_FixedPointDiv.sv**   | 单周期版时序不易收敛   |
+| 开方(Sqrt) | **comb_FixedPointSqrt.sv**      | **pipe_FixedPointSqrt.sv**  | 单周期版时序不易收敛   |
+| 正弦(Sin)  | **comb_FixedPointSin.sv**       | 待实现                        | 单周期版时序不易收敛   |
 | ......     | 待实现                            | 待实现                        |  ......                |
-| 浮点转定点 | ** comb_Float32toFixedPoint.sv ** | 待实现                        |  为单精度浮点          |
-| 定点转浮点 | ** comb_FixedPointToFloat32.sv ** | 待实现                        |  为单精度浮点          |
+| 浮点转定点 | **comb_Float32toFixedPoint.sv** | 待实现                        |  为单精度浮点          |
+| 定点转浮点 | **comb_FixedPointToFloat32.sv** | 待实现                        |  为单精度浮点          |
 
 > 注：以上所有流水线模块的流水线段数详见注释。
 
