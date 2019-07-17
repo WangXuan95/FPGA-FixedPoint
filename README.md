@@ -5,6 +5,7 @@ Verilog-FixedPoint
 SystemVerilog 定点数库。
 
 # 特点
+* **格式** ： 整数+小数，二进制补码形式。位宽可定制
 * **参数化定制位宽** ： 所有运算的输入输出可由 parameter 定制整数位宽和小数位宽。
 * **四则运算** ： 加减乘除。
 * **高级运算** ： 目前已实现 Sin 和 Sqrt。
@@ -16,8 +17,8 @@ SystemVerilog 定点数库。
 | :-----:    | :-----------:               |  :------------:         |  :------------:        |
 | 位宽变换   | comb_FixedPointZoom.sv      | 不必要                  | 有溢出、舍入控制       |
 | 加减       | comb_FixedPointAddSub.sv    | 不必要                  | 具有1bit信号控制加或减 |
-| 加         | comb_FixedPointAdd.sv       | 不必要                  |                        |
-| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   | 单周期版时序不易收敛   |
+| 加         | comb_FixedPointAdd.sv       | 不必要                  | 位宽相同时可直接使用Verilog的加号替代 |
+| 乘法       | comb_FixedPointMul.sv       | pipe_FixedPointMul.sv   |                        |
 | 除法       | comb_FixedPointDiv.sv       | pipe_FixedPointDiv.sv   | 单周期版时序不易收敛   |
 | 开方(Sqrt) | comb_FixedPointSqrt.sv      | pipe_FixedPointSqrt.sv  | 单周期版时序不易收敛   |
 | 正弦(Sin)  | comb_FixedPointSin.sv       | 待实现                  | 单周期版时序不易收敛   |
