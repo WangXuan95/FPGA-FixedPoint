@@ -13,6 +13,7 @@ SystemVerilog 定点数库。
 * **与浮点数互转** ： 目前已实现单精度浮点数转定点数，待实现定点数转浮点数。
 * **单周期与流水线实现** ： 所有运算均有单周期实现，对于某些时钟周期长的运算流水线化。
 
+# 文件功能说明
 | 运算名     |   单周期(组合逻辑实现)      |  流水线                 |    备注                |
 | :-----:    | :-----------:               |  :------------:         |  :------------:        |
 | 位宽变换   | comb_FixedPointZoom.sv      | 不必要                  | 有溢出、舍入控制       |
@@ -29,7 +30,7 @@ SystemVerilog 定点数库。
 > 注：以上所有流水线模块的流水线段数详见注释。
 
 # 仿真
-* [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中所有以 **test_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
+* [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中所有以 **tb_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
 
 ### iverilog 仿真
 * 需要： 安装好 **[iverilog](http://iverilog.icarus.com/)** 并配置好其命令行环境

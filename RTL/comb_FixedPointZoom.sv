@@ -21,10 +21,14 @@ generate if(WOF<WIF)
         inr = in[WII+WIF-1:WIF-WOF];
         if(ROUND & in[WIF-WOF-1]) inr++;
     end
+else if(WOF==WIF)
+    always @ (*) begin
+        inr[WII+WOF-1:WOF-WIF] = in;
+    end
 else
     always @ (*) begin
         inr[WII+WOF-1:WOF-WIF] = in;
-        if(WOF>WIF) inr[WOF-WIF-1:0] = '0;
+        inr[WOF-WIF-1:0] = '0;
     end
 endgenerate
 

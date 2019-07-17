@@ -1,14 +1,14 @@
 module test_arithmetic();
 
-localparam WIIA = 8;
-localparam WIFA = 8;
+localparam WIIA = 10;
+localparam WIFA = 11;
 localparam WIIB = 8;
-localparam WIFB = 8;
-localparam WOI  = 8;
-localparam WOF  = 8;
+localparam WIFB = 12;
+localparam WOI  = 9;
+localparam WOF  = 10;
 
-logic [WIIA+WIFA-1:0] ina;
-logic [WIIB+WIFB-1:0] inb;
+logic [WIIA+WIFA-1:0] ina='0;
+logic [WIIB+WIFB-1:0] inb='0;
 logic [WOI+WOF-1:0] oadd, osub, omul, odiv;
 
 comb_FixedPointAdd # (
