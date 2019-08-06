@@ -67,7 +67,7 @@ module comb_FixedPointMul # ( // 以乘法器为例
 | 开方(Sqrt) | **comb_FixedPointSqrt.sv**      | **pipe_FixedPointSqrt.sv**  | 单周期版时序不易收敛                  |
 | 正弦(Sin)  | **comb_FixedPointSin.sv**       | 待实现                      | 单周期版时序不易收敛                  |
 | 浮点转定点 | **comb_Float32toFixedPoint.sv** | **pipe_Float32toFixedPoint.sv** |  单周期版时序不易收敛             |
-| 定点转浮点 | **comb_FixedPointToFloat32.sv** | 待实现                      |  单周期版时序不易收敛                 |
+| 定点转浮点 | **comb_FixedPointToFloat32.sv** | **pipe_FixedPointToFloat32.sv** |  单周期版时序不易收敛             |
 
 > 注：以上所有流水线模块的流水线段数详见注释。
 
