@@ -9,22 +9,20 @@ logic clk=1'b0, rst=1'b1;
 
 logic [WII+WIF-1:0] in = '0;
 logic [WOI+WOF-1:0] osqrt;
-logic upflow, downflow;
+logic overflow;
 
 pipe_FixedPointSqrt # (
     .WII      ( WII      ),
     .WIF      ( WIF      ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) pipe_fdiv_i (
     .clk                  ,
     .rst                  ,
     .in       ( in       ),
     .out      ( osqrt    ),
-    .upflow   ( upflow   ),
-    .downflow ( downflow )
+    .overflow ( overflow )
 );
 
 int cyclecnt = 0;
@@ -32,7 +30,13 @@ task automatic test(input [WII+WIF-1:0] _in);
 #19 clk = 1'b1;
 #1  in  = _in;
 #19 clk = 1'b0;
-#2  $display("    cycle %3d    sqrt %16f:    %16f =%16f^2",cyclecnt++,($signed(in)*1.0)/(1<<WIF), (($signed(osqrt)*1.0)/(1<<WOF))*(($signed(osqrt)*1.0)/(1<<WOF)), ($signed(osqrt)*1.0)/(1<<WOF) );
+#1  $display("    cycle %3d    sqrt %16f:    %16f =%16f^2    %s",
+                 cyclecnt++,
+                 ($signed(in)*1.0)/(1<<WIF), 
+                 (($signed(osqrt)*1.0)/(1<<WOF))*(($signed(osqrt)*1.0)/(1<<WOF)), 
+                 ($signed(osqrt)*1.0)/(1<<WOF), 
+                 overflow?"overflow!!":"" 
+            );
 endtask
 
 initial begin

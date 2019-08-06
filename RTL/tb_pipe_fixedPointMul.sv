@@ -12,7 +12,7 @@ logic clk=1'b0, rst=1'b1;
 logic [WIIA+WIFA-1:0] ina = '0;
 logic [WIIB+WIFB-1:0] inb = '0;
 logic [ WOI+ WOF-1:0] omul;
-logic upflow, downflow;
+logic overflow;
 
 pipe_FixedPointMul # (
     .WIIA     ( WIIA     ),
@@ -21,7 +21,6 @@ pipe_FixedPointMul # (
     .WIFB     ( WIFB     ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) pipe_fmul_i (
     .clk                  ,
@@ -29,8 +28,7 @@ pipe_FixedPointMul # (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .out      ( omul     ),
-    .upflow   ( upflow   ),
-    .downflow ( downflow )
+    .overflow ( overflow )
 );
 
 int cyclecnt = 0;
@@ -39,11 +37,12 @@ task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
 #1  ina = _ina;
     inb = _inb;
 #19 clk = 1'b0;
-#1  $display("    cycle %3d        input: %12f *%12f =%12f         output:%12f", cyclecnt++,
+#1  $display("    cycle %3d        input: %12f *%12f =%12f         output:%12f   %s", cyclecnt++,
                     ( $signed( ina)*1.0)/(1<<WIFA),
                     ( $signed( inb)*1.0)/(1<<WIFB),
                     (($signed( ina)*1.0)/(1<<WIFA))*(($signed(inb)*1.0)/(1<<WIFB)),
-                    ( $signed(omul)*1.0)/(1<<WOF )
+                    ( $signed(omul)*1.0)/(1<<WOF ),
+                    overflow ? "overflow!!" : ""
                 );
 endtask
 

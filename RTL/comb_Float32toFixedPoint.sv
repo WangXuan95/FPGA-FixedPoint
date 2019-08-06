@@ -1,21 +1,20 @@
 module comb_Float32toFixedPoint #(
     parameter WOI  = 8,
     parameter WOF  = 8,
-    parameter bit ROOF = 1,
     parameter bit ROUND= 1
 )(
     input  logic [31:0] in,
     output logic [WOI+WOF-1:0] out,
-    output logic upflow, downflow
+    output logic overflow
 );
 
-logic overflow, round, sign;
+logic round, sign;
 logic [ 7:0] exp;
 int expi;
 logic [23:0] val;
 
 always @ (*) begin
-    {round, overflow, upflow, downflow} = '0;
+    {round, overflow} = '0;
     {sign, exp, val[22:0]} = in;
     val[23] = 1'b1;
     out = '0;
@@ -38,17 +37,11 @@ always @ (*) begin
     end
     if(overflow) begin
         if(sign) begin
-            downflow = 1;
-            if(ROOF) begin
-                out[WOI+WOF-1]   = 1'b1;
-                out[WOI+WOF-2:0] = '0;
-            end
+            out[WOI+WOF-1]   = 1'b1;
+            out[WOI+WOF-2:0] = '0;
         end else begin
-            upflow = 1;
-            if(ROOF) begin
-                out[WOI+WOF-1]   = 1'b0;
-                out[WOI+WOF-2:0] = '1;
-            end
+            out[WOI+WOF-1]   = 1'b0;
+            out[WOI+WOF-2:0] = '1;
         end
     end else begin
         if(sign)

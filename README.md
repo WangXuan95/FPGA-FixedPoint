@@ -9,7 +9,7 @@ SystemVerilog 定点数库。
 * **参数化定制位宽** ： **parameter** 定制整数位宽和小数位宽。
 * **四则运算** ： 加减乘除。
 * **高级运算** ： 目前已实现 **Sin** 和 **Sqrt** 。
-* **溢出与四舍五入控制** ： 参数化可选项。
+* **四舍五入控制** ： 参数化可选项。
 * **与浮点数互转** 
 * **单周期与流水线** ： 所有运算均有 **单周期实现** ，时钟周期长的运算有 **流水线实现** 。
 
@@ -45,13 +45,14 @@ module comb_FixedPointMul # ( // 以乘法器为例
     parameter WIFB = 8,       // 输入(乘数b)的小数位宽，默认=8
     parameter WOI  = 8,       // 输出(积)的整数位宽，默认=8
     parameter WOF  = 8,       // 输出(积)的小数位宽，默认=8
-    parameter bit ROOF = 1,   // 当积超出表示范围时，是否将输出设为最大值或最小值，默认是
     parameter bit ROUND= 1    // 当积的小数截断时，是否四舍五入，默认是
 )(
     input  logic [WIIA+WIFA-1:0] ina, // 乘数a
     input  logic [WIIB+WIFB-1:0] inb, // 乘数b
-    output logic [WOI +WOF -1:0] out, // 积 = 乘数a * 乘数b
-    output logic upflow, downflow     // 上溢和下溢
+    output logic [WOI +WOF -1:0] out, // 结果(积) = 乘数a * 乘数b
+    output logic overflow             // 结果是否溢出，若溢出则为 1'b1
+                                      // 若为正数溢出，则out被置为最大正值
+                                      // 若为负数溢出，则out被置为最小负值
 );
 ```
 
@@ -65,9 +66,8 @@ module comb_FixedPointMul # ( // 以乘法器为例
 | 除法       | **comb_FixedPointDiv.sv**       | **pipe_FixedPointDiv.sv**   | 单周期版时序不易收敛                  |
 | 开方(Sqrt) | **comb_FixedPointSqrt.sv**      | **pipe_FixedPointSqrt.sv**  | 单周期版时序不易收敛                  |
 | 正弦(Sin)  | **comb_FixedPointSin.sv**       | 待实现                      | 单周期版时序不易收敛                  |
-| ......     | 待实现                          | 待实现                      |  ......                               |
-| 浮点转定点 | **comb_Float32toFixedPoint.sv** | 待实现                      |  为单精度浮点                         |
-| 定点转浮点 | **comb_FixedPointToFloat32.sv** | 待实现                      |  为单精度浮点                         |
+| 浮点转定点 | **comb_Float32toFixedPoint.sv** | **pipe_Float32toFixedPoint.sv** |  单周期版时序不易收敛             |
+| 定点转浮点 | **comb_FixedPointToFloat32.sv** | 待实现                      |  单周期版时序不易收敛                 |
 
 > 注：以上所有流水线模块的流水线段数详见注释。
 

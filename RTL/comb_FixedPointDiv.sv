@@ -5,13 +5,12 @@ module comb_FixedPointDiv #(
     parameter WIFB = 8,
     parameter WOI  = 8,
     parameter WOF  = 8,
-    parameter bit ROOF = 1,
     parameter bit ROUND= 1
 )(
     input  logic [WIIA+WIFA-1:0] dividend,
     input  logic [WIIB+WIFB-1:0] divisor,
     output logic [WOI +WOF -1:0] out,
-    output logic upflow, downflow
+    output logic overflow
 );
 
 localparam WRI = WOI+WIIB > WIIA ? WOI+WIIB : WIIA;
@@ -33,13 +32,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIFA      ),
     .WOI      ( WRI       ),
     .WOF      ( WRF       ),
-    .ROOF     ( 0         ),
     .ROUND    ( 0         )
 ) dividend_zoom (
     .in       ( udividend ),
     .out      ( divd      ),
-    .upflow   (           ),
-    .downflow (           )
+    .overflow (           )
 );
 
 comb_FixedPointZoom # (
@@ -47,13 +44,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIFB      ),
     .WOI      ( WRI       ),
     .WOF      ( WRF       ),
-    .ROOF     ( 0         ),
     .ROUND    ( 0         )
 )  divisor_zoom (
     .in       ( udivisor  ),
     .out      ( divr      ),
-    .upflow   (           ),
-    .downflow (           )
+    .overflow (           )
 );
 
 always @ (*) begin
@@ -76,10 +71,10 @@ always @ (*) begin
             out++;
     end
     
-    {upflow, downflow} = '0;
+    overflow = 1'b0;
     if(sign) begin
         if(out[WOI+WOF-1]) begin
-            if(|out[WOI+WOF-2:0]) downflow = 1'b1;
+            if(|out[WOI+WOF-2:0]) overflow = 1'b1;
             out[WOI+WOF-1] = 1'b1;
             out[WOI+WOF-2:0] = '0;
         end else begin
@@ -87,7 +82,7 @@ always @ (*) begin
         end
     end else begin
         if(out[WOI+WOF-1]) begin
-            upflow = 1'b1;
+            overflow = 1'b1;
             out[WOI+WOF-1] = 1'b0;
             out[WOI+WOF-2:0] = '1;
         end

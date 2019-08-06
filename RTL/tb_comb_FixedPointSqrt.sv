@@ -2,30 +2,28 @@ module test_comb_FixedPointSqrt();
 
 localparam WII  = 13;
 localparam WIF  = 13;
-localparam WOI  = 10;
+localparam WOI  = 7;
 localparam WOF  = 13;
 
 logic [WII+WIF-1:0] in;
 logic [WOI+WOF-1:0] osqrt;
-logic upflow, downflow;
+logic overflow;
 
 comb_FixedPointSqrt #(
     .WII      ( WII      ),
     .WIF      ( WIF      ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) sqrt_i (
     .in       ( in       ),
     .out      ( osqrt    ),
-    .upflow   ( upflow   ),
-    .downflow ( downflow )
+    .overflow ( overflow )
 );
 
 task automatic test_sqrt(input [WII+WIF-1:0] _in);
     in = _in;
-#2  $display("    sqrt %16f:    %16f =%16f^2",($signed(in)*1.0)/(1<<WIF), (($signed(osqrt)*1.0)/(1<<WOF))*(($signed(osqrt)*1.0)/(1<<WOF)), ($signed(osqrt)*1.0)/(1<<WOF) );
+#2  $display("    sqrt %16f:    %16f =%16f^2   %s",($signed(in)*1.0)/(1<<WIF), (($signed(osqrt)*1.0)/(1<<WOF))*(($signed(osqrt)*1.0)/(1<<WOF)), ($signed(osqrt)*1.0)/(1<<WOF) ,overflow?"overflow!!":"" );
 endtask
 
 initial begin

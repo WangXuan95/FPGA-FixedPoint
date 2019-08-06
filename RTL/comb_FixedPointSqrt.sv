@@ -3,12 +3,11 @@ module comb_FixedPointSqrt #(
     parameter WIF  = 8,
     parameter WOI  = 8,
     parameter WOF  = 8,
-    parameter bit ROOF = 1,
     parameter bit ROUND= 1
 )(
     input  logic [WII+WIF-1:0] in,
     output logic [WOI+WOF-1:0] out,
-    output logic upflow, downflow
+    output logic overflow
 );
 
 localparam WTI = (WII%2==1) ? WII+1 : WII;
@@ -31,7 +30,7 @@ always @ (*) begin
         if(ii>=0) resu2tmp += (resu<<( 1+ii));
         else      resu2tmp += (resu>>(-1-ii));
         if(2*ii+WIF>=0) resu2tmp += (1<<(2*ii+WIF));
-        if(resu2tmp<=inu) begin
+        if(resu2tmp<=inu && inu!=0) begin
             resu[ii+WIF] = 1'b1;
             resu2 = resu2tmp;
         end
@@ -43,13 +42,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIF            ),
     .WOI      ( WOI            ),
     .WOF      ( WOF            ),
-    .ROOF     ( ROOF           ),
     .ROUND    ( ROUND          )
 ) res_zoom (
     .in       ( resushort      ),
     .out      ( out            ),
-    .upflow   ( upflow         ),
-    .downflow ( downflow       )
+    .overflow ( overflow       )
 );
 
 endmodule

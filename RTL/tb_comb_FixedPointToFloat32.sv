@@ -5,23 +5,19 @@ localparam WIF  = 16;
 
 logic [WII+WIF-1:0] in_fixed;
 logic [31:0] out_float;
-logic upflow, downflow;
+logic overflow;
 
 comb_FixedPointToFloat32 #(
     .WII      ( WII       ),
-    .WIF      ( WIF       ),
-    .ROOF     ( 1         ),
-    .ROUND    ( 1         )
+    .WIF      ( WIF       )
 ) fixed2float (
     .in       ( in_fixed  ),
-    .out      ( out_float ),
-    .upflow   ( upflow    ),
-    .downflow ( downflow  )
+    .out      ( out_float )
 );
 
 task automatic test_fixed2float(input [WII+WIF-1:0] _infixed);
     in_fixed = _infixed;
-#2  $display("    fixed=%16f     float=0x%08x", ($signed(in_fixed)*1.0)/(1<<WIF), out_float);
+#2  $display("    fixed=%16f     float=0x%08x   %s", ($signed(in_fixed)*1.0)/(1<<WIF), out_float, overflow?"overflow!!":"");
 endtask
 
 initial begin

@@ -7,25 +7,23 @@ localparam WOF  = 12;
 
 logic [WII+WIF-1:0] in;
 logic [WOI+WOF-1:0] osin;
-logic upflow, downflow;
+logic overflow;
 
 comb_FixedPointSin #(
-    .WII      ( WII      ),
-    .WIF      ( WIF      ),
-    .WOI      ( WOI      ),
-    .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
-    .ROUND    ( 1        )
+    .WII        ( WII      ),
+    .WIF        ( WIF      ),
+    .WOI        ( WOI      ),
+    .WOF        ( WOF      ),
+    .ROUND      ( 1        )
 ) sqrt_i (
-    .in       ( in       ),
-    .out      ( osin     ),
-    .upflow   ( upflow   ),
-    .downflow ( downflow )
+    .in         ( in       ),
+    .out        ( osin     ),
+    .i_overflow ( overflow )
 );
 
 task automatic test_sin(input [WII+WIF-1:0] _in);
     in = _in;
-#2  $display("    sin %16f =%16f",($signed(in)*1.0)/(1<<WIF), ($signed(osin)*1.0)/(1<<WOF) );
+#2  $display("    sin %16f =%16f   %s",($signed(in)*1.0)/(1<<WIF), ($signed(osin)*1.0)/(1<<WOF) , overflow ? "input overflow!!" : "");
 endtask
 
 initial begin

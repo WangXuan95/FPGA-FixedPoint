@@ -10,6 +10,7 @@ localparam WOF  = 10;
 logic [WIIA+WIFA-1:0] ina='0;
 logic [WIIB+WIFB-1:0] inb='0;
 logic [WOI+WOF-1:0] oadd, osub, omul, odiv;
+logic oadd_overflow, osub_overflow, omul_overflow, odiv_overflow;
 
 comb_FixedPointAdd # (
     .WIIA     ( WIIA     ),
@@ -18,14 +19,12 @@ comb_FixedPointAdd # (
     .WIFB     ( WIFB     ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) fadd_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .out      ( oadd     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow ( oadd_overflow )
 );
 
 comb_FixedPointAddSub # (
@@ -35,15 +34,13 @@ comb_FixedPointAddSub # (
     .WIFB     ( WIFB     ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) fsub_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .sub      ( 1'b1     ),
     .out      ( osub     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow ( osub_overflow )
 );
 
 comb_FixedPointMul # (
@@ -53,14 +50,12 @@ comb_FixedPointMul # (
     .WIFB     ( WIFB     ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) fmul_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .out      ( omul     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow ( omul_overflow )
 );
 
 comb_FixedPointDiv # (
@@ -70,14 +65,12 @@ comb_FixedPointDiv # (
     .WIFB     ( WIFB     ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
-    .ROOF     ( 1        ),
     .ROUND    ( 1        )
 ) fdiv_i (
     .dividend ( ina      ),
     .divisor  ( inb      ),
     .out      ( odiv     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow ( odiv_overflow )
 );
 
 task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
@@ -85,29 +78,33 @@ task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
     ina = _ina;
     inb = _inb;
     #1
-    $display("    %16f +%16f   SW-result=%16f\n                                         HW-result=%16f",
+    $display("    %16f +%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))+(($signed(inb)*1.0)/(1<<WIFB)),
-                ( $signed(oadd)*1.0)/(1<<WOF )
+                ( $signed(oadd)*1.0)/(1<<WOF ),
+                oadd_overflow ? "overflow!!" : ""
             );
-    $display("    %16f -%16f   SW-result=%16f\n                                         HW-result=%16f",
+    $display("    %16f -%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))-(($signed(inb)*1.0)/(1<<WIFB)),
-                ( $signed(osub)*1.0)/(1<<WOF )
+                ( $signed(osub)*1.0)/(1<<WOF ),
+                osub_overflow ? "overflow!!" : ""
             );
-    $display("    %16f *%16f   SW-result=%16f\n                                         HW-result=%16f",
+    $display("    %16f *%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))*(($signed(inb)*1.0)/(1<<WIFB)),
-                ( $signed(omul)*1.0)/(1<<WOF )
+                ( $signed(omul)*1.0)/(1<<WOF ),
+                omul_overflow ? "overflow!!" : ""
             );
-    $display("    %16f /%16f   SW-result=%16f\n                                         HW-result=%16f",
+    $display("    %16f /%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))/(($signed(inb)*1.0)/(1<<WIFB)),
-                ( $signed(odiv)*1.0)/(1<<WOF )
+                ( $signed(odiv)*1.0)/(1<<WOF ),
+                odiv_overflow ? "overflow!!" : ""
             );
 endtask
 

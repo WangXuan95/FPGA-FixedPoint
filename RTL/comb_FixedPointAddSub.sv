@@ -5,14 +5,13 @@ module comb_FixedPointAddSub # (
     parameter WIFB = 8,
     parameter WOI  = 8,
     parameter WOF  = 8,
-    parameter bit ROOF = 1,
     parameter bit ROUND= 1
 )(
     input  logic [WIIA+WIFA-1:0] ina,
     input  logic [WIIB+WIFB-1:0] inb,
     input  logic sub, // 0=add, 1=sub
     output logic [WOI +WOF -1:0] out,
-    output logic upflow, downflow
+    output logic overflow
 );
 localparam WIIBE = WIIB + 1;
 localparam   WII = WIIA>WIIBE ? WIIA : WIIBE;
@@ -30,13 +29,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIFB     ),
     .WOI      ( WIIBE    ),
     .WOF      ( WIFB     ),
-    .ROOF     ( 0        ),
     .ROUND    ( 0        )
 ) inb_extend (
     .in       ( inb      ),
     .out      ( inbe     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow (          )
 );
 
 assign inbv = sub ? ((~inbe)+1) : inbe;
@@ -46,13 +43,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIFA     ),
     .WOI      ( WII      ),
     .WOF      ( WIF      ),
-    .ROOF     ( 0        ),
     .ROUND    ( 0        )
 ) ina_zoom (
     .in       ( ina      ),
     .out      ( inaz     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow (          )
 );
 
 comb_FixedPointZoom # (
@@ -60,13 +55,11 @@ comb_FixedPointZoom # (
     .WIF      ( WIFB     ),
     .WOI      ( WII      ),
     .WOF      ( WIF      ),
-    .ROOF     ( 0        ),
     .ROUND    ( 0        )
 ) inb_zoom (
     .in       ( inbv     ),
     .out      ( inbz     ),
-    .upflow   (          ),
-    .downflow (          )
+    .overflow (          )
 );
 
 comb_FixedPointZoom # (
@@ -74,13 +67,11 @@ comb_FixedPointZoom # (
     .WIF      ( WRF            ),
     .WOI      ( WOI            ),
     .WOF      ( WOF            ),
-    .ROOF     ( ROOF           ),
     .ROUND    ( ROUND          )
 ) res_zoom (
     .in       ( $unsigned(res) ),
     .out      ( out            ),
-    .upflow   ( upflow         ),
-    .downflow ( downflow       )
+    .overflow ( overflow       )
 );
 
 endmodule

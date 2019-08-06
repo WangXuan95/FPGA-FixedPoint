@@ -1,12 +1,9 @@
 module comb_FixedPointToFloat32 #(
-    parameter WII  = 8,
-    parameter WIF  = 8,
-    parameter bit ROOF = 1,
-    parameter bit ROUND= 1
+    parameter WII = 8,
+    parameter WIF = 8
 )(
     input  logic [WII+WIF-1:0] in,
-    output logic [31:0] out,
-    output logic upflow, downflow
+    output logic [31:0] out
 );
 
 logic flag;
@@ -30,17 +27,11 @@ always @ (*) begin
         end
     end
 
-    {upflow, downflow} = '0;
     if(expz<$signed(10'd255))
         expt = (inu==0) ? '0 : expz[7:0];
     else begin
         expt = 8'd254;
-        if(sign)
-            downflow = 1'b1;
-        else
-            upflow = 1'b1;
-        if(ROOF)
-            tail = '1;
+        tail = '1;
     end
 end
 
