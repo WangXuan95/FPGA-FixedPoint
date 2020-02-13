@@ -1,4 +1,4 @@
-module test_comb_FixedPointSqrt();
+module tb_fxp_sqrt();
 
 localparam WII  = 13;
 localparam WIF  = 13;
@@ -9,7 +9,7 @@ logic [WII+WIF-1:0] in;
 logic [WOI+WOF-1:0] osqrt;
 logic overflow;
 
-comb_FixedPointSqrt #(
+fxp_sqrt #(
     .WII      ( WII      ),
     .WIF      ( WIF      ),
     .WOI      ( WOI      ),

@@ -1,4 +1,4 @@
-module test_comb_FixedPointSin();
+module tb_fxp_sin();
 
 localparam WII  = 4;
 localparam WIF  = 12;
@@ -9,13 +9,13 @@ logic [WII+WIF-1:0] in;
 logic [WOI+WOF-1:0] osin;
 logic overflow;
 
-comb_FixedPointSin #(
+fxp_sin #(
     .WII        ( WII      ),
     .WIF        ( WIF      ),
     .WOI        ( WOI      ),
     .WOF        ( WOF      ),
     .ROUND      ( 1        )
-) sqrt_i (
+) sin_i (
     .in         ( in       ),
     .out        ( osin     ),
     .i_overflow ( overflow )

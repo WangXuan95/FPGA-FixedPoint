@@ -36,9 +36,9 @@ SystemVerilog 定点数库。
 | 1001010110100110 | -27226              | -106.3515625                       |                 |
 
 
-本库的模块输入输出都可以用参数 **定制定点数位宽** ，这些参数是统一的，见如下注释：
+本库的模块输入输出都可以用参数 **定制定点数位宽** ，这些参数是统一的，以乘法器为例：
 ```SystemVerilog
-module comb_FixedPointMul # ( // 以乘法器为例
+module fxp_mul # ( // 以乘法器为例
     parameter WIIA = 8,       // 输入(乘数a)的整数位宽，默认=8
     parameter WIFA = 8,       // 输入(乘数a)的小数位宽，默认=8
     parameter WIIB = 8,       // 输入(乘数b)的整数位宽，默认=8
@@ -56,18 +56,20 @@ module comb_FixedPointMul # ( // 以乘法器为例
 );
 ```
 
-# 文件功能说明
-| 运算名     |   单周期(组合逻辑实现)          |  流水线                     |    备注                               |
-| :-----:    | :-----------:                   |  :------------:             |  :------------:                       |
-| 位宽变换   | **comb_FixedPointZoom.sv**      | 不必要                      | 有溢出、舍入控制                      |
-| 加减       | **comb_FixedPointAddSub.sv**    | 不必要                      | 具有1bit信号控制加或减                |
-| 加         | **comb_FixedPointAdd.sv**       | 不必要                      | 位宽相同时可直接使用Verilog的加号替代 |
-| 乘法       | **comb_FixedPointMul.sv**       | **pipe_FixedPointMul.sv**   |                                       |
-| 除法       | **comb_FixedPointDiv.sv**       | **pipe_FixedPointDiv.sv**   | 单周期版时序不易收敛                  |
-| 开方(Sqrt) | **comb_FixedPointSqrt.sv**      | **pipe_FixedPointSqrt.sv**  | 单周期版时序不易收敛                  |
-| 正弦(Sin)  | **comb_FixedPointSin.sv**       | 待实现                      | 单周期版时序不易收敛                  |
-| 浮点转定点 | **comb_Float32toFixedPoint.sv** | **pipe_Float32toFixedPoint.sv** |  单周期版时序不易收敛             |
-| 定点转浮点 | **comb_FixedPointToFloat32.sv** | **pipe_FixedPointToFloat32.sv** |  单周期版时序不易收敛             |
+# 各模块名称与功能
+所有可综合的模块实现都在 [./RTL/fixedpoint.sv](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/fixedpoint.sv) 中，各模块名称和功能如下表：
+| 运算名     |   单周期(组合逻辑)  |  流水线            |    说明                               |
+| :-----:    | :-----------:       |  :------------:    |  :------------:                       |
+| 位宽变换   | **fxp_zoom**        | 不需要             | 有溢出、舍入控制                      |
+| 加减       | **fxp_addsum**      | 不需要             | 具有1bit信号控制加或减                |
+| 加         | **fxp_add**         | 不需要             |                                       |
+| 乘法       | **fxp_mul**         | **fxp_mul_pipe**   |                                       |
+| 除法       | **fxp_div**         | **fxp_div_pipe**   | 单周期版时序不易收敛                  |
+| 开方(Sqrt) | **fxp_sqrt**        | **fxp_sqrt_pipe**  | 单周期版时序不易收敛                  |
+| 正弦(Sin)  | **fxp_sin**         | 待实现             | 单周期版时序不易收敛                  |
+| 定点转浮点 | **fxp2float**       | **fxp2float_pipe** |  单周期版时序不易收敛                 |
+| 浮点转定点 | **float2fxp**       | **float2fxp_pipe** |  单周期版时序不易收敛                 |
+
 
 > 注：以上所有流水线模块的流水线段数详见注释。
 

@@ -1,4 +1,4 @@
-module test_pipe_FixedPointDiv();
+module tb_fxp_div_pipe();
 
 localparam WIIA = 8;
 localparam WIFA = 8;
@@ -14,7 +14,7 @@ logic [WIIB+WIFB-1:0] inb = '0;
 logic [ WOI+ WOF-1:0] odiv;
 logic overflow;
 
-pipe_FixedPointDiv # (
+fxp_div_pipe # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),

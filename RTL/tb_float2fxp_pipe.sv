@@ -1,28 +1,37 @@
-module test_comb_Float32toFixedPoint();
+module tb_float2fxp_pipe();
 
 localparam WOI  = 10;
 localparam WOF  = 10;
 
-logic [31:0] in_float;
+logic clk=1'b0, rst=1'b1;
+
+logic [31:0] in_float = '0;
 logic [WOI+WOF-1:0] out_fixed;
 logic overflow;
 
-comb_Float32toFixedPoint #(
+float2fxp_pipe #(
     .WOI      ( WOI       ),
     .WOF      ( WOF       ),
     .ROUND    ( 1         )
-) float2fixed (
+) pipe_float2fixed (
+    .clk                  ,
+    .rst                  ,
     .in       ( in_float  ),
     .out      ( out_fixed ),
     .overflow ( overflow  )
 );
 
+logic [31:0] cyclecnt = 0;
+
 task automatic test_float2fixed(input [31:0] _in_float);
-    in_float = _in_float;
-#2  $display("    float=0x%08x   fixed=%16f   %s",in_float,( $signed(out_fixed)*1.0)/(1<<WOF) ,overflow?"overflow!!":"");
+#19 clk = 1'b1;
+#1  in_float = _in_float;
+#19 clk = 1'b0;
+#1  $display("    cycle:%2d   float=0x%08x   fixed=%16f   %s",cyclecnt++,in_float,( $signed(out_fixed)*1.0)/(1<<WOF), overflow?"overflow!!":"");
 endtask
 
 initial begin
+#4  rst = 1'b0;
     test_float2fixed('hc36f0d77);  // -239.052599
     test_float2fixed('h44696e31);  // 933.721728
     test_float2fixed('hc427f97f);  // -671.898360

@@ -1,4 +1,4 @@
-module test_comb_FixedPointToFloat32();
+module tb_fxp2float();
 
 localparam WII  = 16;
 localparam WIF  = 16;
@@ -7,7 +7,7 @@ logic [WII+WIF-1:0] in_fixed;
 logic [31:0] out_float;
 logic overflow;
 
-comb_FixedPointToFloat32 #(
+fxp2float #(
     .WII      ( WII       ),
     .WIF      ( WIF       )
 ) fixed2float (

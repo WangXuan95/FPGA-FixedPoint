@@ -1,4 +1,4 @@
-module test_pipe_FixedPointMul();
+module tb_fxp_mul_pipe();
 
 localparam WIIA = 8;
 localparam WIFA = 8;
@@ -14,7 +14,7 @@ logic [WIIB+WIFB-1:0] inb = '0;
 logic [ WOI+ WOF-1:0] omul;
 logic overflow;
 
-pipe_FixedPointMul # (
+fxp_mul_pipe # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),

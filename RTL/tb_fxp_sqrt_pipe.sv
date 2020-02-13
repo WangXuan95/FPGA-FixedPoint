@@ -1,4 +1,4 @@
-module test_pipe_FixedPointSqrt();
+module tb_fxp_sqrt_pipe();
 
 localparam WII = 9;
 localparam WIF = 10;
@@ -11,13 +11,13 @@ logic [WII+WIF-1:0] in = '0;
 logic [WOI+WOF-1:0] osqrt;
 logic overflow;
 
-pipe_FixedPointSqrt # (
+fxp_sqrt_pipe # (
     .WII      ( WII      ),
     .WIF      ( WIF      ),
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
     .ROUND    ( 1        )
-) pipe_fdiv_i (
+) pipe_sqrt_i (
     .clk                  ,
     .rst                  ,
     .in       ( in       ),

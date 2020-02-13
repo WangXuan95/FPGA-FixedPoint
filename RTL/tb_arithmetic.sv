@@ -1,4 +1,4 @@
-module test_arithmetic();
+module tb_arithmetic();
 
 localparam WIIA = 10;
 localparam WIFA = 11;
@@ -12,7 +12,7 @@ logic [WIIB+WIFB-1:0] inb='0;
 logic [WOI+WOF-1:0] oadd, osub, omul, odiv;
 logic oadd_overflow, osub_overflow, omul_overflow, odiv_overflow;
 
-comb_FixedPointAdd # (
+fxp_add # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),
@@ -27,7 +27,7 @@ comb_FixedPointAdd # (
     .overflow ( oadd_overflow )
 );
 
-comb_FixedPointAddSub # (
+fxp_addsub # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),
@@ -43,7 +43,7 @@ comb_FixedPointAddSub # (
     .overflow ( osub_overflow )
 );
 
-comb_FixedPointMul # (
+fxp_mul # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),
@@ -58,7 +58,7 @@ comb_FixedPointMul # (
     .overflow ( omul_overflow )
 );
 
-comb_FixedPointDiv # (
+fxp_div # (
     .WIIA     ( WIIA     ),
     .WIFA     ( WIFA     ),
     .WIIB     ( WIIB     ),

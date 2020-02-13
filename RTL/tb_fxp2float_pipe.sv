@@ -1,4 +1,4 @@
-module test_pipe_FixedPointToFloat32();
+module tb_fxp2float_pipe();
 
 localparam WII  = 10;
 localparam WIF  = 10;
@@ -8,7 +8,7 @@ logic clk=1'b0, rst=1'b1;
 logic [WII+WIF-1:0] in_fixed = '0;
 logic [31:0] out_float;
 
-pipe_FixedPointToFloat32 #(
+fxp2float_pipe #(
     .WII      ( WII       ),
     .WIF      ( WIF       )
 ) pipe_fixed2float (
