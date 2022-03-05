@@ -57,7 +57,7 @@ module fxp_mul # ( // 以乘法器为例
 ```
 
 # 各模块名称与功能
-所有可综合的模块实现都在 [./RTL/fixedpoint.sv](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/fixedpoint.sv) 中，各模块名称和功能如下表：
+所有可综合的模块实现都在 [./RTL/fixedpoint.sv](./RTL/fixedpoint.sv) 中，各模块名称和功能如下表：
 | 运算名     |   单周期(组合逻辑)  |  流水线            |    说明                               |
 | :-----:    | :-----------:       |  :------------:    |  :------------:                       |
 | 位宽变换   | **fxp_zoom**        | 不需要             | 有溢出、舍入控制                      |
@@ -74,8 +74,8 @@ module fxp_mul # ( // 以乘法器为例
 > 注：以上所有流水线模块的流水线段数详见注释。
 
 # 仿真
-* [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中所有以 **tb_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
+* [./RTL文件夹](./RTL/) 中所有以 **tb_** 开头的 **.sv** 文件为 **testbench**。可以对它们进行仿真。
 
 ### iverilog 仿真
 * 需要： 安装好 **[iverilog](http://iverilog.icarus.com/)** 并配置好其命令行环境
-* 在 Windows 中，运行 [./RTL文件夹](https://github.com/WangXuan95/Verilog-FixedPoint/blob/master/RTL/) 中的 **.bat** 文件，可以看到命令行信息的仿真结果。
+* 在 Windows 中，运行 [./RTL文件夹](./RTL/) 中的 **.bat** 文件，可以看到命令行信息的仿真结果。
