@@ -1,16 +1,30 @@
-module tb_arithmetic();
+
+//--------------------------------------------------------------------------------------------------------
+// Module  : tb_add_sub_mul_div
+// Type    : simulation, top
+// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Function: testbench for fxp_add, fxp_addsub, fxp_mul and fxp_div
+//--------------------------------------------------------------------------------------------------------
+
+`timescale 1ps/1ps
+
+module tb_add_sub_mul_div ();
+
+initial $dumpvars(0, tb_add_sub_mul_div);
+
 
 localparam WIIA = 10;
 localparam WIFA = 11;
 localparam WIIB = 8;
 localparam WIFB = 12;
-localparam WOI  = 9;
-localparam WOF  = 10;
+localparam WOI  = 15;
+localparam WOF  = 14;
 
-logic [WIIA+WIFA-1:0] ina='0;
-logic [WIIB+WIFB-1:0] inb='0;
-logic [WOI+WOF-1:0] oadd, osub, omul, odiv;
-logic oadd_overflow, osub_overflow, omul_overflow, odiv_overflow;
+reg  [WIIA+WIFA-1:0] ina = '0;
+reg  [WIIB+WIFB-1:0] inb = '0;
+wire [  WOI+WOF-1:0] oadd , osub , omul , odiv;
+wire                 oaddo, osubo, omulo, odivo;
+
 
 fxp_add # (
     .WIIA     ( WIIA     ),
@@ -20,12 +34,13 @@ fxp_add # (
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
     .ROUND    ( 1        )
-) fadd_i (
+) fxp_add_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .out      ( oadd     ),
-    .overflow ( oadd_overflow )
+    .overflow ( oaddo    )
 );
+
 
 fxp_addsub # (
     .WIIA     ( WIIA     ),
@@ -35,13 +50,14 @@ fxp_addsub # (
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
     .ROUND    ( 1        )
-) fsub_i (
+) fxp_addsub_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .sub      ( 1'b1     ),
     .out      ( osub     ),
-    .overflow ( osub_overflow )
+    .overflow ( osubo    )
 );
+
 
 fxp_mul # (
     .WIIA     ( WIIA     ),
@@ -51,12 +67,13 @@ fxp_mul # (
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
     .ROUND    ( 1        )
-) fmul_i (
+) fxp_mul_i (
     .ina      ( ina      ),
     .inb      ( inb      ),
     .out      ( omul     ),
-    .overflow ( omul_overflow )
+    .overflow ( omulo    )
 );
+
 
 fxp_div # (
     .WIIA     ( WIIA     ),
@@ -66,53 +83,56 @@ fxp_div # (
     .WOI      ( WOI      ),
     .WOF      ( WOF      ),
     .ROUND    ( 1        )
-) fdiv_i (
+) fxp_div_i (
     .dividend ( ina      ),
     .divisor  ( inb      ),
     .out      ( odiv     ),
-    .overflow ( odiv_overflow )
+    .overflow ( odivo    )
 );
 
+
 task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
-    #1
+    #10000
     ina = _ina;
     inb = _inb;
-    #1
-    $display("    %16f +%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
+    #10000
+    $display("    %16f +%16f   SW-result=%16f\n                                         HW-result=%16f %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))+(($signed(inb)*1.0)/(1<<WIFB)),
                 ( $signed(oadd)*1.0)/(1<<WOF ),
-                oadd_overflow ? "overflow!!" : ""
+                oaddo ? "(o)" : ""
             );
-    $display("    %16f -%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
+    $display("    %16f -%16f   SW-result=%16f\n                                         HW-result=%16f %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))-(($signed(inb)*1.0)/(1<<WIFB)),
                 ( $signed(osub)*1.0)/(1<<WOF ),
-                osub_overflow ? "overflow!!" : ""
+                osubo ? "(o)" : ""
             );
-    $display("    %16f *%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
+    $display("    %16f *%16f   SW-result=%16f\n                                         HW-result=%16f %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))*(($signed(inb)*1.0)/(1<<WIFB)),
                 ( $signed(omul)*1.0)/(1<<WOF ),
-                omul_overflow ? "overflow!!" : ""
+                omulo ? "(o)" : ""
             );
-    $display("    %16f /%16f   SW-result=%16f\n                                         HW-result=%16f   %s",
+    $display("    %16f /%16f   SW-result=%16f\n                                         HW-result=%16f %s",
                 ( $signed( ina)*1.0)/(1<<WIFA),
                 ( $signed( inb)*1.0)/(1<<WIFB),
                 (($signed( ina)*1.0)/(1<<WIFA))/(($signed(inb)*1.0)/(1<<WIFB)),
                 ( $signed(odiv)*1.0)/(1<<WOF ),
-                odiv_overflow ? "overflow!!" : ""
+                odivo ? "(o)" : ""
             );
 endtask
 
+
 initial begin
+    test('ha09b63b3, 'h00000000);
+    test('h00001551, 'h00000001);
     test('h00000000, 'h00000000);
-    test('hf6360551, 'h00000000);
     test('h00000000, 'h1d320443);
-    test('ha09b63b3, 'h1d320443);
+    test('ha09b63b3, 'h1d320473);
     test('h8bb51e68, 'h761cf80d);
     test('h6e56e35e, 'h4b45ead0);
     test('h9432d234, 'h1b86880c);
@@ -131,7 +151,8 @@ initial begin
     test('h6e546855, 'hf8ecca82);
     test('h680a9d44, 'hc699cee3);
     test('hf6c772c2, 'h34ccc642);
-    test('ha2ad7ac4, 'h2b77d220);
+    test('ha2ad7ac4, 'h12345678);
+    $finish;
 end
 
 endmodule
