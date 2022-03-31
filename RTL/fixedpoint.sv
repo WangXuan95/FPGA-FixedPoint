@@ -588,10 +588,8 @@ always @ (posedge clk or negedge rstn)
     end
 
 // from 2nd to WOI+WOF+1 pipeline stages: calculate division
-reg [WRI+ WRF-1:0] tmp = 0;
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        tmp = 0;
         for(int ii=0; ii<WOI+WOF; ii++) begin
             res  [ii+1] <= '0;
             divrp[ii+1] <= '0;
@@ -601,6 +599,7 @@ always @ (posedge clk or negedge rstn)
         end
     end else begin
         for(int ii=0; ii<WOI+WOF; ii++) begin
+            reg [WRI+ WRF-1:0] tmp;
             res  [ii+1] <= res[ii];
             divdp[ii+1] <= divdp[ii];
             divrp[ii+1] <= divrp[ii];
@@ -688,18 +687,14 @@ module fxp_sqrt #(
 localparam WTI = (WII%2==1) ? WII+1 : WII;
 localparam WRI = WTI/2;
 
-wire  sign = in[WII+WIF-1];
-reg  [WTI+WIF-1:0] inu = '0;
-reg  [WTI+WIF-1:0] resu2 = '0, resu2tmp = '0;
-reg  [WTI+WIF-1:0] resu = '0;
-wire [WRI+WIF  :0] resushort = sign ? (~resu[WRI+WIF:0])+(WRI+WIF+1)'(1) : resu[WRI+WIF:0];
+reg [WRI+WIF:0] resushort = '0;
 
 always @ (*) begin
+    logic                sign;
+    logic  [WTI+WIF-1:0] inu, resu2, resu2tmp, resu;
+    sign = in[WII+WIF-1];
     inu = '0;
     inu[WII+WIF-1:0] = sign ? (~in)+(WII+WIF)'(1) : in;
-end
-
-always @ (*) begin
     {resu2,resu} = '0;
     for(int ii=WRI-1; ii>=-WIF; ii--) begin
         resu2tmp = resu2;
@@ -711,6 +706,7 @@ always @ (*) begin
             resu2 = resu2tmp;
         end
     end
+    resushort = sign ? (~resu[WRI+WIF:0])+(WRI+WIF+1)'(1) : resu[WRI+WIF:0];
 end
 
 fxp_zoom # (
@@ -772,9 +768,6 @@ initial for(int ii=0; ii<=WRI+WIF; ii++) begin
             resu[ii] = '0;
         end
 
-int jj = 0;
-reg [WTI+WIF-1:0] resu2tmp = '0;
-
 always @ (posedge clk or negedge rstn) begin
     if(~rstn) begin
         for(int ii=0; ii<=WRI+WIF; ii++) begin
@@ -790,6 +783,8 @@ always @ (posedge clk or negedge rstn) begin
         resu2[0] <= '0;
         resu[0] <= '0;
         for(int ii=WRI-1; ii>=-WIF; ii--) begin
+            int jj;
+            logic [WTI+WIF-1:0] resu2tmp;
             jj = WRI-1-ii;
             sign[jj+1] <= sign[jj];
             inu [jj+1] <= inu [jj];
@@ -854,18 +849,20 @@ module fxp2float #(
     parameter WIF = 8
 )(
     input  wire [WII+WIF-1:0] in,
-    output wire        [31:0] out
+    output reg         [31:0] out
 );
 
-reg              flag = '0;
-reg signed [9:0] expz = '0, ii = '0;
-reg       [ 7:0] expt = '0;
-reg       [22:0] tail = '0;
+initial out = '0;
 
 wire  sign = in[WII+WIF-1];
 wire  [WII+WIF-1:0] inu = sign ? (~in)+(WII+WIF)'(1) : in;
 
 always @ (*) begin
+    logic flag;
+    logic signed [9:0] expz, ii;
+    logic [ 7:0] expt;
+    logic [22:0] tail;
+    
     tail = '0;
     flag = 1'b0;
     ii = 10'd22;
@@ -888,9 +885,9 @@ always @ (*) begin
         expt = 8'd254;
         tail = '1;
     end
+    
+    out = {sign, expt, tail};
 end
-
-assign out = {sign, expt, tail};
 
 endmodule
 
@@ -1016,14 +1013,13 @@ module float2fxp #(
 
 initial {out, overflow} = '0;
 
-reg        round = '0;
-reg        sign = '0;
-reg [ 7:0] exp2 = '0;
-reg [23:0] val = '0;
-reg signed [31:0] expi = '0;
-
 always @ (*) begin
-    {round, overflow} = '0;
+    logic        round, sign;
+    logic [ 7:0] exp2;
+    logic [23:0] val;
+    logic signed [31:0] expi;
+    round = '0;
+    overflow = '0;
     {sign, exp2, val[22:0]} = in;
     val[23] = 1'b1;
     out = '0;
@@ -1167,14 +1163,13 @@ always @ (posedge clk or negedge rstn)
 
 // last 2nd pipeline stage
 reg               signl = 1'b0;
-reg [WOI+WOF-1:0] outt = '0;
 reg [WOI+WOF-1:0] outl = '0;
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        outt = '0;
         outl <= '0;
         signl <= 1'b0;
     end else begin
+        logic [WOI+WOF-1:0] outt;
         outt = outs[0];
         if(ROUND & rounds[0] & ~(&outt))
             outt++;
