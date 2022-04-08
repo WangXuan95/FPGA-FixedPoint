@@ -394,7 +394,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 
 module fxp_div #(
-	parameter WIIA = 8,
+    parameter WIIA = 8,
     parameter WIFA = 8,
     parameter WIIB = 8,
     parameter WIFB = 8,
@@ -504,7 +504,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 
 module fxp_div_pipe #(
-	parameter WIIA = 8,
+    parameter WIIA = 8,
     parameter WIFA = 8,
     parameter WIIB = 8,
     parameter WIFB = 8,
