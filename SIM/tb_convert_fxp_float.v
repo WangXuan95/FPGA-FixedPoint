@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Module  : tb_convert_fxp_float
 // Type    : simulation, top
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: testbench for fxp2float, fxp2float_pipe, float2fxp and float2fxp_pipe
 //           1. use fxp2float and fxp2float_pipe to convert fixed-point to float-point
 //           2. use float2fxp and float2fxp_pipe to convert float-point back to fixed-point
@@ -28,7 +28,7 @@ always #(10000) clk = ~clk;   // 50MHz
 initial begin repeat(4) @(posedge clk); rstn<=1'b1; end
 
 
-reg  [WII+WIF-1:0] fxp1 = '0;
+reg  [WII+WIF-1:0] fxp1 = 0;
 wire        [31:0] float2;
 wire        [31:0] float3;
 wire [WOI+WOF-1:0] fxp4;

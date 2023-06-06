@@ -1,8 +1,111 @@
-![语言](https://img.shields.io/badge/语言-systemverilog_(IEEE1800_2005)-CAD09D.svg) ![仿真](https://img.shields.io/badge/仿真-iverilog-green.svg) ![部署](https://img.shields.io/badge/部署-quartus-blue.svg) ![部署](https://img.shields.io/badge/部署-vivado-FF1010.svg)
+![语言](https://img.shields.io/badge/语言-verilog_(IEEE1364_2001)-9A90FD.svg) ![仿真](https://img.shields.io/badge/仿真-iverilog-green.svg)
 
-中文 | [English](#en)
+[English](#en) | [中文](#cn)
 
-Verilog-FixedPoint
+　
+
+<span id="en">Verilog-FixedPoint</span>
+===========================
+
+SystemVerilog fixed-point library. features:
+
+* Customizable integer bit width and fractional bit width.
+* **Arithmetic** : Addition, Subtraction, Multiplication, Division, Square Root.
+* **Overflow detection**: When an overflow occurs, the overflow signal = 1, and the output result will be set to a positive maximum value (upflow) or a negative minimum value (underflow).
+* **Round Control** : When truncation occurs, you can choose whether to round up or not.
+* Supports **converting to and from single-precision floating-point numbers (IEEE-754)**.
+* All operations have **single-cycle implementation**, operations with long combinatorial logic delays have **pipeline implementation**.
+
+　
+
+# FixedPoint Format
+
+A fixed-point number consists of a number of integers and a number of fractions. Its value = **the integer's complement of its binary code** divided by **2^fractional bit width** .
+
+For example, if the integer bit width is 8 and the fractional bit width is 8, the following table shows some fixed-point values:
+
+|   binary code    | Integer's complement | fixed-point value |      remark      |
+| :--------------: | :------------------: | :---------------: | :--------------: |
+| 0000000000000000 |          0           |        0.0        |       zero       |
+| 0000000100000000 |         256          |        1.0        |                  |
+| 1111111100000000 |         -256         |       -1.0        |                  |
+| 0000000000000001 |          1           |    0.00390625     | positive minimum |
+| 1111111111111111 |          -1          |    -0.00390625    | negative maximum |
+| 0111111111111111 |        32767         |   127.99609375    | positive maximum |
+| 1000000000000000 |        -32768        |      -128.0       | negative minimum |
+| 0001010111000011 |         5571         |    21.76171875    |                  |
+| 1001010110100110 |        -27226        |   -106.3515625    |                  |
+
+All module in this repository use parameters to define the fixed-point bit width. The names of these parameters are unified:
+
+- `WOI` and `WOF` are the integer bit width and fractional bit width of the output fixed-point number, respectively.
+- For unary operations, `WII` and `WIF` are the integer and fractional widths of the input fixed-point number, respectively.
+- For binocular operations, `WIIA` and `WIFA` are the integer and fractional widths of the fixed-point number of input operand A, respectively; `WIIB` and `WIFB` are the integer and fractional widths of the fixed-point number of input operand B, respectively.
+
+Take the multiplier as an example:
+
+```SystemVerilog
+module fxp_mul # (
+    parameter WIIA = 8,
+    parameter WIFA = 8,
+    parameter WIIB = 8,
+    parameter WIFB = 8,
+    parameter WOI  = 8,
+    parameter WOF  = 8,
+    parameter bit ROUND= 1
+)(
+    input  wire [WIIA+WIFA-1:0] ina,
+    input  wire [WIIB+WIFB-1:0] inb,
+    output wire [WOI +WOF -1:0] out,
+    output wire overflow
+);
+```
+
+　
+
+# Module List
+
+All synthesizable modules are implemented in [RTL/fixedpoint.v](./RTL/fixedpoint.v) . The names and functions of each module are as follows:
+
+|      Operation       | Single-cycle ver. |   Pipelined ver.   | Pipeline stages |
+| :------------------: | :---------------: | :----------------: | :-------------: |
+|   width conversion   |   **fxp_zoom**    |    unnecessary     |        -        |
+| Addition/Subtraction |  **fxp_addsub**   |    unnecessary     |        -        |
+|       Addition       |    **fxp_add**    |    unnecessary     |        -        |
+|    Multiplication    |    **fxp_mul**    |  **fxp_mul_pipe**  |        2        |
+|       Division       |    **fxp_div**    |  **fxp_div_pipe**  |    WOI+WOF+3    |
+|     Square Root      |   **fxp_sqrt**    | **fxp_sqrt_pipe**  |   WII/2+WIF+2   |
+| Fixed-point to Float |   **fxp2float**   | **fxp2float_pipe** |    WII+WIF+2    |
+| Float to Fixed-point |   **float2fxp**   | **float2fxp_pipe** |    WOI+WOF+4    |
+
+　
+
+# RTL Simulation
+
+Simulation related files are in the SIM folder, where:
+
+| source file             | description                                                  |
+| ----------------------- | ------------------------------------------------------------ |
+| tb_add_sub_mul_div.v   | Test single-cycle version of addition, subtraction, multiplication and division |
+| tb_fxp_mul_div_pipe.v  | Test the pipelined version of multiply and divide.           |
+| tb_fxp_sqrt.v          | Test Square Root.                                            |
+| tb_convert_fxp_float.v | Test the conversion between fixed-point and floating-point.  |
+
+Before using iverilog for simulation, you need to install iverilog , see: [iverilog_usage](https://github.com/WangXuan95/WangXuan95/blob/main/iverilog_usage/iverilog_usage.md)
+
+Then double-click the corresponding .bat file to run the simulation.
+
+　
+
+　
+
+　
+
+　
+
+　
+
+<span id="cn">Verilog-FixedPoint</span>
 ===========================
 
 SystemVerilog 定点数库。
@@ -14,7 +117,7 @@ SystemVerilog 定点数库。
 * **与单精度浮点数（IEEE754）互相转换** 。
 * 所有运算均有 **单周期实现** ，组合逻辑延迟长的运算有 **流水线实现** 。
 
-
+　
 
 # 定点数格式
 
@@ -61,11 +164,11 @@ module fxp_mul # ( // 以乘法器为例
 );
 ```
 
-
+　
 
 # 各模块名称与功能
 
-所有可综合的模块实现都在 RTL/fixedpoint.sv 中，各模块名称和功能如下表：
+所有可综合的模块实现都在 RTL/fixedpoint.v 中，各模块名称和功能如下表：
 |    运算    | 单周期版本(组合逻辑) |     流水线版本     | 流水线级数  |          说明          |
 | :--------: | :------------------: | :----------------: | :---------: | :--------------------: |
 |  位宽变换  |     **fxp_zoom**     |       不需要       |      -      |    有溢出、舍入控制    |
@@ -77,7 +180,7 @@ module fxp_mul # ( // 以乘法器为例
 | 定点转浮点 |    **fxp2float**     | **fxp2float_pipe** |  WII+WIF+2  |  单周期版时序不易收敛  |
 | 浮点转定点 |    **float2fxp**     | **float2fxp_pipe** |  WOI+WOF+4  |  单周期版时序不易收敛  |
 
-
+　
 
 # 仿真
 
@@ -85,104 +188,12 @@ module fxp_mul # ( // 以乘法器为例
 
 | 代码文件                | 说明                       |
 | ----------------------- | -------------------------- |
-| tb_add_sub_mul_div.sv   | 测试单周期版本的加减乘除   |
-| tb_fxp_mul_div_pipe.sv  | 测试流水线版本的乘除       |
-| tb_fxp_sqrt.sv          | 测试开方运算               |
-| tb_convert_fxp_float.sv | 测试定点数与浮点数互相转化 |
+| tb_add_sub_mul_div.v   | 测试单周期版本的加减乘除   |
+| tb_fxp_mul_div_pipe.v  | 测试流水线版本的乘除       |
+| tb_fxp_sqrt.v          | 测试开方运算               |
+| tb_convert_fxp_float.v | 测试定点数与浮点数互相转化 |
 
 使用 iverilog 进行仿真前，需要安装 iverilog ，见：[iverilog_usage](https://github.com/WangXuan95/WangXuan95/blob/main/iverilog_usage/iverilog_usage.md)
 
 然后双击对应的 .bat 文件就能运行仿真。
 
-
-
-<span id="en">Verilog-FixedPoint</span>
-===========================
-
-SystemVerilog fixed-point library. features:
-
-* Customizable integer bit width and fractional bit width.
-* **Arithmetic** : Addition, Subtraction, Multiplication, Division, Square Root.
-* **Overflow detection**: When an overflow occurs, the overflow signal = 1, and the output result will be set to a positive maximum value (upflow) or a negative minimum value (underflow).
-* **Round Control** : When truncation occurs, you can choose whether to round up or not.
-* Supports **converting to and from single-precision floating-point numbers (IEEE-754)**.
-* All operations have **single-cycle implementation**, operations with long combinatorial logic delays have **pipeline implementation**.
-
-
-
-# FixedPoint Format
-
-A fixed-point number consists of a number of integers and a number of fractions. Its value = **the integer's complement of its binary code** divided by **2^fractional bit width** .
-
-For example, if the integer bit width is 8 and the fractional bit width is 8, the following table shows some fixed-point values:
-
-|   binary code    | Integer's complement | fixed-point value |      remark      |
-| :--------------: | :------------------: | :---------------: | :--------------: |
-| 0000000000000000 |          0           |        0.0        |       zero       |
-| 0000000100000000 |         256          |        1.0        |                  |
-| 1111111100000000 |         -256         |       -1.0        |                  |
-| 0000000000000001 |          1           |    0.00390625     | positive minimum |
-| 1111111111111111 |          -1          |    -0.00390625    | negative maximum |
-| 0111111111111111 |        32767         |   127.99609375    | positive maximum |
-| 1000000000000000 |        -32768        |      -128.0       | negative minimum |
-| 0001010111000011 |         5571         |    21.76171875    |                  |
-| 1001010110100110 |        -27226        |   -106.3515625    |                  |
-
-All module in this repository use parameters to define the fixed-point bit width. The names of these parameters are unified:
-
-- `WOI` and `WOF` are the integer bit width and fractional bit width of the output fixed-point number, respectively.
-- For unary operations, `WII` and `WIF` are the integer and fractional widths of the input fixed-point number, respectively.
-- For binocular operations, `WIIA` and `WIFA` are the integer and fractional widths of the fixed-point number of input operand A, respectively; `WIIB` and `WIFB` are the integer and fractional widths of the fixed-point number of input operand B, respectively.
-
-Take the multiplier as an example:
-
-```SystemVerilog
-module fxp_mul # (
-    parameter WIIA = 8,
-    parameter WIFA = 8,
-    parameter WIIB = 8,
-    parameter WIFB = 8,
-    parameter WOI  = 8,
-    parameter WOF  = 8,
-    parameter bit ROUND= 1
-)(
-    input  wire [WIIA+WIFA-1:0] ina,
-    input  wire [WIIB+WIFB-1:0] inb,
-    output wire [WOI +WOF -1:0] out,
-    output wire overflow
-);
-```
-
-
-
-# Module List
-
-All synthesizable modules are implemented in [RTL/fixedpoint.sv](./RTL/fixedpoint.sv) . The names and functions of each module are as follows:
-
-|      Operation       | Single-cycle ver. |   Pipelined ver.   | Pipeline stages |
-| :------------------: | :---------------: | :----------------: | :-------------: |
-|   width conversion   |   **fxp_zoom**    |    unnecessary     |        -        |
-| Addition/Subtraction |  **fxp_addsub**   |    unnecessary     |        -        |
-|       Addition       |    **fxp_add**    |    unnecessary     |        -        |
-|    Multiplication    |    **fxp_mul**    |  **fxp_mul_pipe**  |        2        |
-|       Division       |    **fxp_div**    |  **fxp_div_pipe**  |    WOI+WOF+3    |
-|     Square Root      |   **fxp_sqrt**    | **fxp_sqrt_pipe**  |   WII/2+WIF+2   |
-| Fixed-point to Float |   **fxp2float**   | **fxp2float_pipe** |    WII+WIF+2    |
-| Float to Fixed-point |   **float2fxp**   | **float2fxp_pipe** |    WOI+WOF+4    |
-
-
-
-# RTL Simulation
-
-Simulation related files are in the SIM folder, where:
-
-| source file             | description                                                  |
-| ----------------------- | ------------------------------------------------------------ |
-| tb_add_sub_mul_div.sv   | Test single-cycle version of addition, subtraction, multiplication and division |
-| tb_fxp_mul_div_pipe.sv  | Test the pipelined version of multiply and divide.           |
-| tb_fxp_sqrt.sv          | Test Square Root.                                            |
-| tb_convert_fxp_float.sv | Test the conversion between fixed-point and floating-point.  |
-
-Before using iverilog for simulation, you need to install iverilog , see: [iverilog_usage](https://github.com/WangXuan95/WangXuan95/blob/main/iverilog_usage/iverilog_usage.md)
-
-Then double-click the corresponding .bat file to run the simulation.

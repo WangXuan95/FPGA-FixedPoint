@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Module  : tb_fxp_sqrt
 // Type    : simulation, top
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: testbench for fxp_sqrt and fxp_sqrt_pipe
 //--------------------------------------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ always #(10000) clk = ~clk;   // 50MHz
 initial begin repeat(4) @(posedge clk); rstn<=1'b1; end
 
 
-reg  [WII+WIF-1:0] ival = '0;
+reg  [WII+WIF-1:0] ival = 0;
 wire [WOI+WOF-1:0] oval1;
 wire               overflow1;
 wire [WOI+WOF-1:0] oval2;

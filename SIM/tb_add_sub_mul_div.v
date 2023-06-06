@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Module  : tb_add_sub_mul_div
 // Type    : simulation, top
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: testbench for fxp_add, fxp_addsub, fxp_mul and fxp_div
 //--------------------------------------------------------------------------------------------------------
 
@@ -20,8 +20,8 @@ localparam WIFB = 12;
 localparam WOI  = 15;
 localparam WOF  = 14;
 
-reg  [WIIA+WIFA-1:0] ina = '0;
-reg  [WIIB+WIFB-1:0] inb = '0;
+reg  [WIIA+WIFA-1:0] ina = 0;
+reg  [WIIB+WIFB-1:0] inb = 0;
 wire [  WOI+WOF-1:0] oadd , osub , omul , odiv;
 wire                 oaddo, osubo, omulo, odivo;
 
@@ -91,7 +91,10 @@ fxp_div # (
 );
 
 
-task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
+task test;
+    input [WIIA+WIFA-1:0] _ina;
+    input [WIIB+WIFB-1:0] _inb;
+begin
     #10000
     ina = _ina;
     inb = _inb;
@@ -124,6 +127,7 @@ task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
                 ( $signed(odiv)*1.0)/(1<<WOF ),
                 odivo ? "(o)" : ""
             );
+end
 endtask
 
 

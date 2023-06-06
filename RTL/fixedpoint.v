@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Modules : fxp_zoom, fxp_add, fxp_addsub, fxp_mul, fxp_mul_pipe, fxp_div, fxp_div_pipe, fxp_sqrt, fxp_sqrt_pipe, fxp2float, fxp2float_pipe, float2fxp, float2fxp_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: fixed-point library
 //--------------------------------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_zoom
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: bit width conversion for fixed-point
 //           combinational logic
 //--------------------------------------------------------------------------------------------------------
@@ -31,12 +31,12 @@ module fxp_zoom #(
     output reg                overflow
 );
 
-initial overflow = '0;
+initial overflow = 1'b0;
 
-reg [WII+WOF-1:0] inr = '0;
-reg [WII-1:0] ini = '0;
-reg [WOI-1:0] outi = '0;
-reg [WOF-1:0] outf = '0;
+reg [WII+WOF-1:0] inr = 0;
+reg [WII-1:0] ini = 0;
+reg [WOI-1:0] outi = 0;
+reg [WOF-1:0] outf = 0;
 
 generate if(WOF<WIF) begin
     if(ROUND==0) begin
@@ -44,12 +44,12 @@ generate if(WOF<WIF) begin
     end else if(WII+WOF>=2) begin
         always @ (*) begin
             inr = in[WII+WIF-1:WIF-WOF];
-            if(in[WIF-WOF-1] & ~(~inr[WII+WOF-1] & (&inr[WII+WOF-2:0]))) inr++;
+            if(in[WIF-WOF-1] & ~(~inr[WII+WOF-1] & (&inr[WII+WOF-2:0]))) inr=inr+1;
         end
     end else begin
         always @ (*) begin
             inr = in[WII+WIF-1:WIF-WOF];
-            if(in[WIF-WOF-1] & inr[WII+WOF-1]) inr++;
+            if(in[WIF-WOF-1] & inr[WII+WOF-1]) inr=inr+1;
         end
     end
 end else if(WOF==WIF) begin
@@ -57,7 +57,7 @@ end else if(WOF==WIF) begin
 end else begin
     always @ (*) begin
         inr[WII+WOF-1:WOF-WIF] = in;
-        inr[WOF-WIF-1:0] = '0;
+        inr[WOF-WIF-1:0] = 0;
     end
 end endgenerate
 
@@ -67,14 +67,14 @@ generate if(WOI<WII) begin
         {ini, outf} = inr;
         if         ( ~ini[WII-1] & |ini[WII-2:WOI-1] ) begin
             overflow = 1'b1;
-            outi = '1;
+            outi = {WOI{1'b1}};
             outi[WOI-1] = 1'b0;
-            outf = '1;
+            outf = {WOF{1'b1}};
         end else if(  ini[WII-1] & ~(&ini[WII-2:WOI-1]) ) begin
             overflow = 1'b1;
-            outi = '0;
+            outi = 0;
             outi[WOI-1] = 1'b1;
-            outf = '0;
+            outf = 0;
         end else begin
             overflow = 1'b0;
             outi = ini[WOI-1:0];
@@ -84,7 +84,7 @@ end else begin
     always @ (*) begin
         {ini, outf} = inr;
         overflow = 1'b0;
-        outi = ini[WII-1] ? '1 : '0;
+        outi = ini[WII-1] ? {WOI{1'b1}} : 0;
         outi[WII-1:0] = ini;
     end
 end endgenerate
@@ -102,7 +102,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_add
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: addition
 //           combinational logic
 //--------------------------------------------------------------------------------------------------------
@@ -178,7 +178,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_addsub
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: addition and subtraction
 //           combinational logic
 //--------------------------------------------------------------------------------------------------------
@@ -205,9 +205,10 @@ localparam   WIF = WIFA>WIFB  ? WIFA : WIFB;
 localparam   WRI = WII + 1;
 localparam   WRF = WIF;
 
+localparam [WIIBE+WIFB-1:0] ONE = 1;
 wire [WIIBE+WIFB-1:0] inbe;
 wire [   WII+WIF-1:0] inaz, inbz;
-wire [WIIBE+WIFB-1:0] inbv = sub ? (~inbe)+(WIIBE+WIFB)'(1) : inbe;
+wire [WIIBE+WIFB-1:0] inbv = sub ? (~inbe)+ONE : inbe;
 wire signed [WRI+WRF-1:0] res = $signed(inaz) + $signed(inbz);
 
 fxp_zoom # (
@@ -269,7 +270,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_mul
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: multiplication
 //           combinational logic
 //--------------------------------------------------------------------------------------------------------
@@ -317,7 +318,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_mul_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: multiplication
 //           pipeline stage = 2
 //--------------------------------------------------------------------------------------------------------
@@ -339,7 +340,7 @@ module fxp_mul_pipe # (
     output reg                  overflow
 );
 
-initial {out, overflow} = '0;
+initial {out, overflow} = 0;
 
 localparam WRI = WIIA + WIIB;
 localparam WRF = WIFA + WIFB;
@@ -347,11 +348,11 @@ localparam WRF = WIFA + WIFB;
 wire [WOI +WOF -1:0] outc;
 wire                 overflowc;
 
-reg signed [WRI+WRF-1:0] res = '0;
+reg signed [WRI+WRF-1:0] res = 0;
 
 always @ (posedge clk or negedge rstn)
     if(~rstn)
-        res <= '0;
+        res <= 0;
     else
         res <= $signed(ina) * $signed(inb);
 
@@ -369,7 +370,7 @@ fxp_zoom # (
 
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        out      <= '0;
+        out      <= 0;
         overflow <= 1'b0;
     end else begin
         out      <= outc;
@@ -387,7 +388,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_div
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: division
 //           combinational logic
 //           not recommended due to the long critical path
@@ -408,21 +409,25 @@ module fxp_div #(
     output reg                  overflow
 );
 
-initial {out, overflow} = '0;
+initial {out, overflow} = 0;
 
 localparam WRI = WOI+WIIB > WIIA ? WOI+WIIB : WIIA;
 localparam WRF = WOF+WIFB > WIFA ? WOF+WIFB : WIFA;
 
 reg                  sign = 1'b0;
-reg  [WIIA+WIFA-1:0] udividend = '0;
-reg  [WIIB+WIFB-1:0]  udivisor = '0;
-reg  [ WRI+ WRF-1:0] acc='0, acct='0;
+reg  [WIIA+WIFA-1:0] udividend = 0;
+reg  [WIIB+WIFB-1:0]  udivisor = 0;
+reg  [ WRI+ WRF-1:0] acc=0, acct=0;
 wire [ WRI+ WRF-1:0] divd, divr;
+
+localparam  [WIIA+WIFA-1:0] ONEA = 1;
+localparam  [WIIB+WIFB-1:0] ONEB = 1;
+localparam  [WOI + WOF-1:0] ONEO = 1;
 
 always @ (*) begin  // convert dividend and divisor to positive number
     sign      = dividend[WIIA+WIFA-1] ^ divisor[WIIB+WIFB-1];
-    udividend = dividend[WIIA+WIFA-1] ? (~dividend)+(WIIA+WIFA)'(1) : dividend;
-    udivisor  =  divisor[WIIB+WIFB-1] ? (~ divisor)+(WIIB+WIFB)'(1) : divisor ;
+    udividend = dividend[WIIA+WIFA-1] ? (~dividend)+ONEA : dividend;
+    udivisor  =  divisor[WIIB+WIFB-1] ? (~ divisor)+ONEB : divisor ;
 end
 
 fxp_zoom # (
@@ -449,9 +454,11 @@ fxp_zoom # (
     .overflow (           )
 );
 
+integer shamt;
+
 always @ (*) begin
-    acc = '0;
-    for(int shamt=WOI-1; shamt>=-WOF; shamt--) begin
+    acc = 0;
+    for(shamt=WOI-1; shamt>=-WOF; shamt=shamt-1) begin
         if(shamt>=0)
             acct = acc + (divr<<shamt);
         else
@@ -466,7 +473,7 @@ always @ (*) begin
     if(ROUND && ~(&out)) begin
         acct = acc+(divr>>(WOF));
         if(acct-divd<divd-acc)
-            out++;
+            out=out+1;
     end
     
     overflow = 1'b0;
@@ -474,15 +481,15 @@ always @ (*) begin
         if(out[WOI+WOF-1]) begin
             if(|out[WOI+WOF-2:0]) overflow = 1'b1;
             out[WOI+WOF-1] = 1'b1;
-            out[WOI+WOF-2:0] = '0;
+            out[WOI+WOF-2:0] = 0;
         end else begin
-            out = (~out) + (WOI+WOF)'(1);
+            out = (~out) + ONEO;
         end
     end else begin
         if(out[WOI+WOF-1]) begin
             overflow = 1'b1;
             out[WOI+WOF-1] = 1'b0;
-            out[WOI+WOF-2:0] = '1;
+            out[WOI+WOF-2:0] = {(WOI+WOF){1'b1}};
         end
     end
 end
@@ -498,7 +505,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_div_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: division
 //           pipeline stage = WOI+WOF+3
 //--------------------------------------------------------------------------------------------------------
@@ -520,32 +527,38 @@ module fxp_div_pipe #(
     output reg                  overflow
 );
 
-initial {out, overflow} = '0;
+initial {out, overflow} = 0;
 
 localparam WRI = WOI+WIIB > WIIA ? WOI+WIIB : WIIA;
 localparam WRF = WOF+WIFB > WIFA ? WOF+WIFB : WIFA;
 
 wire [WRI+WRF-1:0]  divd, divr;
-reg  [WOI+WOF-1:0] roundedres = '0;
+reg  [WOI+WOF-1:0] roundedres = 0;
 reg                rsign = 1'b0;
-reg                 sign [WOI+WOF+1];
-reg  [WRI+WRF-1:0]  acc  [WOI+WOF+1];
-reg  [WRI+WRF-1:0] divdp [WOI+WOF+1];
-reg  [WRI+WRF-1:0] divrp [WOI+WOF+1];
-reg  [WOI+WOF-1:0]  res  [WOI+WOF+1];
+reg                 sign [WOI+WOF:0];
+reg  [WRI+WRF-1:0]  acc  [WOI+WOF:0];
+reg  [WRI+WRF-1:0] divdp [WOI+WOF:0];
+reg  [WRI+WRF-1:0] divrp [WOI+WOF:0];
+reg  [WOI+WOF-1:0]  res  [WOI+WOF:0];
+localparam  [WOI+WOF-1:0] ONEO = 1;
+
+integer ii;
 
 // initialize all regs
-initial for(int ii=0; ii<=WOI+WOF; ii++) begin
-            res  [ii] = '0;
-            divrp[ii] = '0;
-            divdp[ii] = '0;
-            acc  [ii] = '0;
+initial for(ii=0; ii<=WOI+WOF; ii=ii+1) begin
+            res  [ii] = 0;
+            divrp[ii] = 0;
+            divdp[ii] = 0;
+            acc  [ii] = 0;
             sign [ii] = 1'b0;
         end
 
+wire [WIIA+WIFA-1:0] ONEA = 1;
+wire [WIIB+WIFB-1:0] ONEB = 1;
+
 // convert dividend and divisor to positive number
-wire [WIIA+WIFA-1:0] udividend = dividend[WIIA+WIFA-1] ? (~dividend)+(WIIA+WIFA)'(1) : dividend;
-wire [WIIB+WIFB-1:0]  udivisor =  divisor[WIIB+WIFB-1] ? (~ divisor)+(WIIB+WIFB)'(1) : divisor ;
+wire [WIIA+WIFA-1:0] udividend = dividend[WIIA+WIFA-1] ? (~dividend)+ONEA : dividend;
+wire [WIIB+WIFB-1:0]  udivisor =  divisor[WIIB+WIFB-1] ? (~ divisor)+ONEB : divisor ;
 
 fxp_zoom # (
     .WII      ( WIIA      ),
@@ -574,32 +587,34 @@ fxp_zoom # (
 // 1st pipeline stage: convert dividend and divisor to positive number
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        res[0]   <= '0;
-        acc[0]   <= '0;
-        divdp[0] <= '0;
-        divrp[0] <= '0;
+        res[0]   <= 0;
+        acc[0]   <= 0;
+        divdp[0] <= 0;
+        divrp[0] <= 0;
         sign [0] <= 1'b0;
     end else begin
-        res[0]   <= '0;
-        acc[0]   <= '0;
+        res[0]   <= 0;
+        acc[0]   <= 0;
         divdp[0] <= divd;
         divrp[0] <= divr;
         sign [0] <= dividend[WIIA+WIFA-1] ^ divisor[WIIB+WIFB-1];
     end
 
+reg [WRI+ WRF-1:0] tmp;
+
 // from 2nd to WOI+WOF+1 pipeline stages: calculate division
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        for(int ii=0; ii<WOI+WOF; ii++) begin
-            res  [ii+1] <= '0;
-            divrp[ii+1] <= '0;
-            divdp[ii+1] <= '0;
-            acc  [ii+1] <= '0;
+        for(ii=0; ii<WOI+WOF; ii=ii+1) begin
+            res  [ii+1] <= 0;
+            divrp[ii+1] <= 0;
+            divdp[ii+1] <= 0;
+            acc  [ii+1] <= 0;
             sign [ii+1] <= 1'b0;
         end
     end else begin
-        for(int ii=0; ii<WOI+WOF; ii++) begin
-            reg [WRI+ WRF-1:0] tmp;
+        for(ii=0; ii<WOI+WOF; ii=ii+1) begin
+            
             res  [ii+1] <= res[ii];
             divdp[ii+1] <= divdp[ii];
             divrp[ii+1] <= divrp[ii];
@@ -621,11 +636,11 @@ always @ (posedge clk or negedge rstn)
 // next pipeline stage: process round
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        roundedres <= '0;
+        roundedres <= 0;
         rsign      <= 1'b0;
     end else begin
         if( ROUND && ~(&res[WOI+WOF]) && (acc[WOI+WOF]+(divrp[WOI+WOF]>>(WOF))-divdp[WOI+WOF]) < (divdp[WOI+WOF]-acc[WOI+WOF]) )
-            roundedres <= res[WOI+WOF] + (WOI+WOF)'(1);
+            roundedres <= res[WOI+WOF] + ONEO;
         else
             roundedres <= res[WOI+WOF];
         rsign      <= sign[WOI+WOF];
@@ -635,21 +650,21 @@ always @ (posedge clk or negedge rstn)
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
         overflow <= 1'b0;
-        out <= '0;
+        out <= 0;
     end else begin
         overflow <= 1'b0;
         if(rsign) begin
             if(roundedres[WOI+WOF-1]) begin
                 if(|roundedres[WOI+WOF-2:0]) overflow <= 1'b1;
                 out[WOI+WOF-1] <= 1'b1;
-                out[WOI+WOF-2:0] <= '0;
+                out[WOI+WOF-2:0] <= 0;
             end else
-                out <= (~roundedres)+(WOI+WOF)'(1);
+                out <= (~roundedres) + ONEO;
         end else begin
             if(roundedres[WOI+WOF-1]) begin
                 overflow <= 1'b1;
                 out[WOI+WOF-1] <= 1'b0;
-                out[WOI+WOF-2:0] <= '1;
+                out[WOI+WOF-2:0] <= {(WOI+WOF){1'b1}};
             end else
                 out <= roundedres;
         end
@@ -666,7 +681,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_sqrt
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: square root
 //           combinational logic
 //           not recommended due to the long critical path
@@ -687,26 +702,33 @@ module fxp_sqrt #(
 localparam WTI = (WII%2==1) ? WII+1 : WII;
 localparam WRI = WTI/2;
 
-reg [WRI+WIF:0] resushort = '0;
+localparam [WII+WIF-1:0] ONEI = 1;
+localparam [WTI+WIF-1:0] ONET = 1;
+localparam [WRI+WIF-1:0] ONER = 1;
+
+reg [WRI+WIF:0] resushort = 0;
+
+integer ii;
+
+reg                sign;
+reg  [WTI+WIF-1:0] inu, resu2, resu2tmp, resu;
 
 always @ (*) begin
-    logic                sign;
-    logic  [WTI+WIF-1:0] inu, resu2, resu2tmp, resu;
     sign = in[WII+WIF-1];
-    inu = '0;
-    inu[WII+WIF-1:0] = sign ? (~in)+(WII+WIF)'(1) : in;
-    {resu2,resu} = '0;
-    for(int ii=WRI-1; ii>=-WIF; ii--) begin
+    inu = 0;
+    inu[WII+WIF-1:0] = sign ? (~in)+ONEI : in;
+    {resu2,resu} = 0;
+    for(ii=WRI-1; ii>=-WIF; ii=ii-1) begin
         resu2tmp = resu2;
-        if(ii>=0) resu2tmp += (resu<<( 1+ii));
-        else      resu2tmp += (resu>>(-1-ii));
-        if(2*ii+WIF>=0) resu2tmp += ( (WTI+WIF)'(1) << (2*ii+WIF) );
+        if(ii>=0) resu2tmp = resu2tmp + (resu<<( 1+ii));
+        else      resu2tmp = resu2tmp + (resu>>(-1-ii));
+        if(2*ii+WIF>=0) resu2tmp = resu2tmp + ( ONET << (2*ii+WIF) );
         if(resu2tmp<=inu && inu!=0) begin
             resu[ii+WIF] = 1'b1;
             resu2 = resu2tmp;
         end
     end
-    resushort = sign ? (~resu[WRI+WIF:0])+(WRI+WIF+1)'(1) : resu[WRI+WIF:0];
+    resushort = sign ? (~resu[WRI+WIF:0])+ONER : resu[WRI+WIF:0];
 end
 
 fxp_zoom # (
@@ -732,7 +754,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp_sqrt_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: square root
 //           pipeline stage = [WII/2]+WIF+2, [] means upper int
 //--------------------------------------------------------------------------------------------------------
@@ -751,40 +773,45 @@ module fxp_sqrt_pipe #(
     output reg                overflow
 );
 
-initial {overflow,out} = '0;
+initial {overflow,out} = 0;
 
 localparam WTI = (WII%2==1) ? WII+1 : WII;
 localparam WRI = WTI/2;
 
-reg               sign [WRI+WIF+1];
-reg [WTI+WIF-1:0] inu  [WRI+WIF+1];
-reg [WTI+WIF-1:0] resu2 [WRI+WIF+1];
-reg [WTI+WIF-1:0] resu  [WRI+WIF+1];
+localparam [WII+WIF-1:0] ONEI = 1;
+localparam [WTI+WIF-1:0] ONET = 1;
+localparam [WRI+WIF-1:0] ONER = 1;
 
-initial for(int ii=0; ii<=WRI+WIF; ii++) begin
-            sign[ii] = '0;
-            inu[ii]  = '0;
-            resu2[ii]= '0;
-            resu[ii] = '0;
+reg               sign [WRI+WIF :0];
+reg [WTI+WIF-1:0] inu  [WRI+WIF :0];
+reg [WTI+WIF-1:0] resu2 [WRI+WIF :0];
+reg [WTI+WIF-1:0] resu  [WRI+WIF :0];
+
+integer ii, jj;
+reg [WTI+WIF-1:0] resu2tmp;
+
+initial for(ii=0; ii<=WRI+WIF; ii=ii+1) begin
+            sign[ii] = 0;
+            inu[ii]  = 0;
+            resu2[ii]= 0;
+            resu[ii] = 0;
         end
 
 always @ (posedge clk or negedge rstn) begin
     if(~rstn) begin
-        for(int ii=0; ii<=WRI+WIF; ii++) begin
-            sign[ii] <= '0;
-            inu[ii]  <= '0;
-            resu2[ii]<= '0;
-            resu[ii] <= '0;
+        for(ii=0; ii<=WRI+WIF; ii=ii+1) begin
+            sign[ii] <= 0;
+            inu[ii]  <= 0;
+            resu2[ii]<= 0;
+            resu[ii] <= 0;
         end
     end else begin
         sign[0] <= in[WII+WIF-1];
-        inu[0] <= '0;
-        inu[0][WII+WIF-1:0] <= in[WII+WIF-1] ? (~in)+(WII+WIF)'(1) : in;
-        resu2[0] <= '0;
-        resu[0] <= '0;
-        for(int ii=WRI-1; ii>=-WIF; ii--) begin
-            int jj;
-            logic [WTI+WIF-1:0] resu2tmp;
+        inu[0] <= 0;
+        inu[0][WII+WIF-1:0] <= in[WII+WIF-1] ? (~in)+ONEI : in;
+        resu2[0] <= 0;
+        resu[0] <= 0;
+        for(ii=WRI-1; ii>=-WIF; ii=ii-1) begin
             jj = WRI-1-ii;
             sign[jj+1] <= sign[jj];
             inu [jj+1] <= inu [jj];
@@ -792,11 +819,11 @@ always @ (posedge clk or negedge rstn) begin
             resu2[jj+1]<= resu2[jj];
             resu2tmp = resu2[jj];
             if(ii>=0)
-                resu2tmp += (resu[jj]<<( 1+ii));
+                resu2tmp = resu2tmp + (resu[jj]<<( 1+ii));
             else
-                resu2tmp += (resu[jj]>>(-1-ii));
+                resu2tmp = resu2tmp + (resu[jj]>>(-1-ii));
             if(2*ii+WIF>=0)
-                resu2tmp += ( (WTI+WIF)'(1) << (2*ii+WIF) );
+                resu2tmp = resu2tmp + ( ONET << (2*ii+WIF) );
             if(resu2tmp<=inu[jj] && inu[jj]!=0) begin
                 resu[jj+1][ii+WIF] <= 1'b1;
                 resu2[jj+1] <= resu2tmp;
@@ -805,7 +832,7 @@ always @ (posedge clk or negedge rstn) begin
     end
 end
 
-wire [WRI+WIF  :0] resushort = sign[WRI+WIF] ? (~resu[WRI+WIF][WRI+WIF:0])+(WRI+WIF+1)'(1) : resu[WRI+WIF][WRI+WIF:0];
+wire [WRI+WIF  :0] resushort = sign[WRI+WIF] ? (~resu[WRI+WIF][WRI+WIF:0])+ONER : resu[WRI+WIF][WRI+WIF:0];
 wire [WOI+WOF-1:0] outl;
 wire               overflowl;
 
@@ -823,7 +850,7 @@ fxp_zoom # (
 
 always @ (posedge clk or negedge rstn)
     if(~rstn)
-        {overflow,out} <= '0;
+        {overflow,out} <= 0;
     else
         {overflow,out} <= {overflowl,outl};
 
@@ -838,7 +865,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp2float
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: convert fixed-point to float-point (IEEE754 single precision)
 //           combinational logic
 //           not recommended due to the long critical path
@@ -852,38 +879,42 @@ module fxp2float #(
     output reg         [31:0] out
 );
 
-initial out = '0;
+initial out = 0;
+
+localparam [WII+WIF-1:0] ONEI = 1;
 
 wire  sign = in[WII+WIF-1];
-wire  [WII+WIF-1:0] inu = sign ? (~in)+(WII+WIF)'(1) : in;
+wire  [WII+WIF-1:0] inu = sign ? (~in)+ONEI : in;
+
+integer jj;
+reg flag;
+reg signed [9:0] expz, ii;
+reg [ 7:0] expt;
+reg [22:0] tail;
 
 always @ (*) begin
-    logic flag;
-    logic signed [9:0] expz, ii;
-    logic [ 7:0] expt;
-    logic [22:0] tail;
     
-    tail = '0;
+    tail = 0;
     flag = 1'b0;
     ii = 10'd22;
-    expz = '0;
+    expz = 0;
     
-    for(int jj=(10)'(WII+WIF-1); jj>=0; jj--) begin
+    for(jj=WII+WIF-1; jj>=0; jj=jj-1) begin
         if(flag && ii>=0) begin
             tail[ii] = inu[jj];
-            ii--;
+            ii=ii-1;
         end
         if(inu[jj]) begin
-            if(~flag) expz = (10)'(jj+127-WIF);
+            if(~flag) expz = jj+127-WIF;
             flag = 1'b1;
         end
     end
 
     if(expz<$signed(10'd255))
-        expt = (inu==0) ? '0 : expz[7:0];
+        expt = (inu==0) ? 0 : expz[7:0];
     else begin
         expt = 8'd254;
-        tail = '1;
+        tail = 23'h7FFFFF;
     end
     
     out = {sign, expt, tail};
@@ -900,7 +931,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : fxp2float_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: convert fixed-point to float-point (IEEE754 single precision)
 //           pipeline stage = WII+WIF+2
 //--------------------------------------------------------------------------------------------------------
@@ -915,35 +946,39 @@ module fxp2float_pipe #(
     output wire        [31:0] out
 );
 
-reg              sign [WII+WIF+1];
-reg         [9:0] exp [WII+WIF+1];
-reg [WII+WIF-1:0] inu [WII+WIF+1];
+reg              sign [WII+WIF :0];
+reg         [9:0] exp [WII+WIF :0];
+reg [WII+WIF-1:0] inu [WII+WIF :0];
 
-reg [23:0] vall = '0;
-reg [23:0] valo = '0;
-reg [ 7:0] expo = '0;
-reg       signo = '0;
+localparam [WII+WIF-1:0] ONEI = 1;
+
+reg [23:0] vall = 0;
+reg [23:0] valo = 0;
+reg [ 7:0] expo = 0;
+reg       signo = 0;
 
 assign out = {signo, expo, valo[22:0]};
 
-initial for(int ii=WII+WIF; ii>=0; ii--) begin
-            sign[ii] = '0;
-            exp[ii]  = '0;
-            inu[ii]  = '0;
+integer ii;
+
+initial for(ii=WII+WIF; ii>=0; ii=ii-1) begin
+            sign[ii] = 0;
+            exp[ii]  = 0;
+            inu[ii]  = 0;
         end
 
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        for(int ii=WII+WIF; ii>=0; ii--) begin
-            sign[ii] <= '0;
-            exp[ii]  <= '0;
-            inu[ii]  <= '0;
+        for(ii=WII+WIF; ii>=0; ii=ii-1) begin
+            sign[ii] <= 0;
+            exp[ii]  <= 0;
+            inu[ii]  <= 0;
         end
     end else begin
         sign[WII+WIF] <= in[WII+WIF-1];
-        exp [WII+WIF] <= (10)'(WII+127-1);
-        inu[WII+WIF]  <= in[WII+WIF-1] ? (~in)+(WII+WIF)'(1) : in;
-        for(int ii=WII+WIF-1; ii>=0; ii--) begin
+        exp [WII+WIF] <= WII+127-1;
+        inu[WII+WIF]  <= in[WII+WIF-1] ? (~in)+ONEI : in;
+        for(ii=WII+WIF-1; ii>=0; ii=ii-1) begin
             sign[ii] <= sign[ii+1];
             if(inu[ii+1][WII+WIF-1]) begin
                 exp[ii] <= exp[ii+1];
@@ -960,7 +995,7 @@ always @ (posedge clk or negedge rstn)
     
 generate if(23>WII+WIF-1) begin
     always @ (*) begin
-        vall = '0;
+        vall = 0;
         vall[23:23-(WII+WIF-1)] = inu[0];
     end
 end else begin
@@ -969,15 +1004,15 @@ end endgenerate
 
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        {signo, expo, valo} <= '0;
+        {signo, expo, valo} <= 0;
     end else begin
         signo <= sign[0];
         if(exp[0]>=10'd255) begin
             expo <= 8'd255;
-            valo <= '1;
+            valo <= 24'hFFFFFF;
         end else if(exp[0]==10'd0 || ~vall[23]) begin
             expo <= 8'd0;
-            valo <= '0;
+            valo <= 0;
         end else begin
             expo <= exp[0][7:0];
             valo <= vall;
@@ -995,7 +1030,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : float2fxp
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: convert float-point (IEEE754 single precision) to fixed-point
 //           combinational logic
 //           not recommended due to the long critical path
@@ -1011,23 +1046,28 @@ module float2fxp #(
     output reg                overflow
 );
 
-initial {out, overflow} = '0;
+initial {out, overflow} = 0;
+
+localparam [WOI+WOF-1:0] ONEO = 1;
+
+integer ii;
+
+reg        round, sign;
+reg [ 7:0] exp2;
+reg [23:0] val;
+reg signed [31:0] expi;
 
 always @ (*) begin
-    logic        round, sign;
-    logic [ 7:0] exp2;
-    logic [23:0] val;
-    logic signed [31:0] expi;
-    round = '0;
-    overflow = '0;
+    round = 0;
+    overflow = 0;
     {sign, exp2, val[22:0]} = in;
     val[23] = 1'b1;
-    out = '0;
+    out = 0;
     expi = exp2-127+WOF;
     if( &exp2 )
         overflow = 1'b1;
     else if( in[30:0]!=0 ) begin
-        for(int ii=23; ii>=0; ii--) begin
+        for(ii=23; ii>=0; ii=ii-1) begin
             if(val[ii]) begin
                 if(expi>=WOI+WOF-1)
                     overflow = 1'b1;
@@ -1036,21 +1076,21 @@ always @ (*) begin
                 else if(ROUND && expi==-1)
                     round=1'b1;
             end
-            expi--;
+            expi = expi - 1;
         end
-        if(round) out++;
+        if(round) out=out+1;
     end
     if(overflow) begin
         if(sign) begin
             out[WOI+WOF-1]   = 1'b1;
-            out[WOI+WOF-2:0] = '0;
+            out[WOI+WOF-2:0] = 0;
         end else begin
             out[WOI+WOF-1]   = 1'b0;
-            out[WOI+WOF-2:0] = '1;
+            out[WOI+WOF-2:0] = {(WOI+WOF){1'b1}};
         end
     end else begin
         if(sign)
-            out = (~out) + (WOI+WOF)'(1);
+            out = (~out) + ONEO;
     end
 end
 
@@ -1065,7 +1105,7 @@ endmodule
 //--------------------------------------------------------------------------------------------------------
 // Module  : float2fxp_pipe
 // Type    : synthesizable
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: convert float-point (IEEE754 single precision) to fixed-point
 //           pipeline stage = WOI+WOF+4
 //--------------------------------------------------------------------------------------------------------
@@ -1082,7 +1122,9 @@ module float2fxp_pipe #(
     output reg                overflow
 );
 
-initial {out, overflow} = '0;
+localparam [WOI+WOF-1:0] ONEO = 1;
+
+initial {out, overflow} = 0;
 
 // input comb
 wire        sign;
@@ -1094,23 +1136,23 @@ assign val[23] = |exp;
 
 // pipeline stage1
 reg signinit=1'b0, roundinit=1'b0;
-reg signed [31:0] expinit = '0;
-reg [WOI+WOF-1:0] outinit = '0;
+reg signed [31:0] expinit = 0;
+reg [WOI+WOF-1:0] outinit = 0;
 
 generate if(WOI+WOF-1>=23) begin
     always @ (posedge clk or negedge rstn)
         if(~rstn) begin
-            outinit <= '0;
+            outinit <= 0;
             roundinit <= 1'b0;
         end else begin
-            outinit <= '0;
+            outinit <= 0;
             outinit[WOI+WOF-1:WOI+WOF-1-23] <= val;
             roundinit <= 1'b0;
         end
 end else begin
     always @ (posedge clk or negedge rstn)
         if(~rstn) begin
-            outinit <= '0;
+            outinit <= 0;
             roundinit <= 1'b0;
         end else begin
             outinit <= val[23:23-(WOI+WOF-1)];
@@ -1131,21 +1173,23 @@ always @ (posedge clk or negedge rstn)
     end
 
 // next pipeline stages
-reg              signs [WOI+WOF+1];
-reg             rounds [WOI+WOF+1];
-reg [31:0]        exps [WOI+WOF+1];
-reg [WOI+WOF-1:0] outs [WOI+WOF+1];
+reg              signs [WOI+WOF :0];
+reg             rounds [WOI+WOF :0];
+reg [31:0]        exps [WOI+WOF :0];
+reg [WOI+WOF-1:0] outs [WOI+WOF :0];
+
+integer ii;
 
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        for(int ii=0; ii<WOI+WOF+1; ii++) begin
-            signs[ii]  <= '0;
-            rounds[ii] <= '0;
-            exps[ii]   <= '0;
-            outs[ii]   <= '0;
+        for(ii=0; ii<WOI+WOF+1; ii=ii+1) begin
+            signs[ii]  <= 0;
+            rounds[ii] <= 0;
+            exps[ii]   <= 0;
+            outs[ii]   <= 0;
         end
     end else begin
-        for(int ii=0; ii<WOI+WOF; ii++) begin
+        for(ii=0; ii<WOI+WOF; ii=ii+1) begin
             signs[ii] <= signs[ii+1];
             if(exps[ii+1]!=0) begin
                 {outs[ii], rounds[ii]} <= {       1'b0,   outs[ii+1] };
@@ -1163,19 +1207,19 @@ always @ (posedge clk or negedge rstn)
 
 // last 2nd pipeline stage
 reg               signl = 1'b0;
-reg [WOI+WOF-1:0] outl = '0;
+reg [WOI+WOF-1:0] outl = 0;
+reg [WOI+WOF-1:0] outt;
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        outl <= '0;
+        outl <= 0;
         signl <= 1'b0;
     end else begin
-        logic [WOI+WOF-1:0] outt;
         outt = outs[0];
         if(ROUND & rounds[0] & ~(&outt))
-            outt++;
+            outt = outt + 1;
         if(signs[0]) begin
             signl <= (outt!=0);
-            outt  = (~outt) + (WOI+WOF)'(1);
+            outt  = (~outt) + ONEO;
         end else
             signl <= 1'b0;
         outl <= outt;
@@ -1184,7 +1228,7 @@ always @ (posedge clk or negedge rstn)
 // last 1st pipeline stage: overflow control
 always @ (posedge clk or negedge rstn)
     if(~rstn) begin
-        out <= '0;
+        out <= 0;
         overflow <= 1'b0;
     end else begin
         out <= outl;
@@ -1192,13 +1236,13 @@ always @ (posedge clk or negedge rstn)
         if(signl) begin
             if(~outl[WOI+WOF-1]) begin
                 out[WOI+WOF-1] <= 1'b1;
-                out[WOI+WOF-2:0] <= '0;
+                out[WOI+WOF-2:0] <= 0;
                 overflow <= 1'b1;
             end
         end else begin
             if(outl[WOI+WOF-1]) begin
                 out[WOI+WOF-1] <= 1'b0;
-                out[WOI+WOF-2:0] <= '1;
+                out[WOI+WOF-2:0] <= {(WOI+WOF){1'b1}};
                 overflow <= 1'b1;
             end
         end

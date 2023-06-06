@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------------
 // Module  : tb_fxp_mul_div_pipe
 // Type    : simulation, top
-// Standard: SystemVerilog 2005 (IEEE1800-2005)
+// Standard: Verilog 2001 (IEEE1364-2001)
 // Function: testbench for fxp_mul_pipe and fxp_div_pipe
 //--------------------------------------------------------------------------------------------------------
 
@@ -27,8 +27,8 @@ always #(10000) clk = ~clk;   // 50MHz
 initial begin repeat(4) @(posedge clk); rstn<=1'b1; end
 
 
-reg  [WIIA+WIFA-1:0] ina = '0;
-reg  [WIIB+WIFB-1:0] inb = '0;
+reg  [WIIA+WIFA-1:0] ina = 0;
+reg  [WIIB+WIFB-1:0] inb = 0;
 wire [ WOI+ WOF-1:0] omul;
 wire                 omulo;
 wire [ WOI+ WOF-1:0] odiv;
@@ -71,10 +71,14 @@ fxp_div_pipe # (
 );
 
 
-task automatic test(input [WIIA+WIFA-1:0] _ina, input [WIIB+WIFB-1:0] _inb);
+task test;
+    input [WIIA+WIFA-1:0] _ina;
+    input [WIIB+WIFB-1:0] _inb;
+begin
     @ (posedge clk);
     ina <= _ina;
     inb <= _inb;
+end
 endtask
 
 
