@@ -7,7 +7,7 @@
 <span id="en">Verilog-FixedPoint</span>
 ===========================
 
-SystemVerilog fixed-point library. features:
+Verilog fixed-point library. features:
 
 * Customizable integer bit width and fractional bit width.
 * **Arithmetic** : Addition, Subtraction, Multiplication, Division, Square Root.
@@ -44,7 +44,7 @@ All module in this repository use parameters to define the fixed-point bit width
 
 Take the multiplier as an example:
 
-```SystemVerilog
+```verilog
 module fxp_mul # (
     parameter WIIA = 8,
     parameter WIFA = 8,
@@ -108,7 +108,7 @@ Then double-click the corresponding .bat file to run the simulation.
 <span id="cn">Verilog-FixedPoint</span>
 ===========================
 
-SystemVerilog 定点数库。
+Verilog 定点数库。
 
 * 可定制整数位宽和小数位宽。
 * **运算** ： 加、减、乘、除、开方。
@@ -145,7 +145,7 @@ SystemVerilog 定点数库。
 
 以乘法器为例：
 
-```SystemVerilog
+```verilog
 module fxp_mul # ( // 以乘法器为例
     parameter WIIA = 8,       // 输入(乘数a)的整数位宽，默认=8
     parameter WIFA = 8,       // 输入(乘数a)的小数位宽，默认=8
